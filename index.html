@@ -190,6 +190,7 @@ footer{max-width:900px;margin:10px auto 0;text-align:center;font-size:10.5px;col
     <button class="fbtn" onclick="fil('low',this)">🔴 Low / Out</button>
     <button class="fbtn" onclick="fil('warn',this)">🟡 Reorder Soon</button>
     <button class="fbtn" onclick="fil('ok',this)">🟢 OK</button>
+    <button class="fbtn" onclick="showAddModal()" style="margin-left:auto;background:var(--accent);color:#fff;border-color:var(--accent);">+ Add Item</button>
   </div>
   <div class="slabel">🧴 Household Supplies</div>
   <div class="cgrid" id="g-supplies"></div>
@@ -212,7 +213,71 @@ footer{max-width:900px;margin:10px auto 0;text-align:center;font-size:10.5px;col
   </table>
 </div>
 
-<footer>🔥 Live sync via Firebase · All changes logged with who &amp; when · PIN-protected</footer>
+<footer style="position:relative;">
+  🔥 Live sync via Firebase · All changes logged with who &amp; when · PIN-protected
+  <span id="kimOnly" style="display:none;position:absolute;right:0;bottom:0;font-size:9px;color:var(--border);cursor:pointer;user-select:none;" onclick="showResetModal()">⬤</span>
+</footer>
+
+<!-- RESET MODAL -->
+<div id="resetModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;">
+  <div style="background:var(--surf);border-radius:16px;padding:28px 24px;max-width:340px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.2);">
+    <p style="font-size:16px;font-weight:600;margin-bottom:8px;color:var(--danger);">⚠️ Reset All Inventory</p>
+    <p style="font-size:12px;color:var(--muted);margin-bottom:16px;line-height:1.6;">This will set <strong>all quantities to zero</strong> and permanently <strong>delete the entire audit log</strong>. This cannot be undone.</p>
+    <p style="font-size:12px;color:var(--text);margin-bottom:8px;font-weight:500;">Type <strong>RESET</strong> to confirm:</p>
+    <input id="resetConfirmInput" type="text" placeholder="Type RESET here" style="width:100%;padding:8px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;margin-bottom:14px;background:var(--bg);color:var(--text);"/>
+    <p style="font-size:11px;color:var(--muted);margin-bottom:16px;">Once confirmed, all data will be wiped immediately.</p>
+    <div style="display:flex;gap:8px;">
+      <button onclick="closeResetModal()" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--text);">Cancel</button>
+      <button onclick="confirmReset()" style="flex:1;padding:9px;border-radius:8px;border:none;background:var(--danger);color:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">Reset Everything</button>
+    </div>
+  </div>
+</div>
+
+<!-- ADD ITEM MODAL -->
+<div id="addModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;">
+  <div style="background:var(--surf);border-radius:16px;padding:28px 24px;max-width:360px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.2);">
+    <p style="font-size:16px;font-weight:600;margin-bottom:16px;">➕ Add New Item</p>
+    <div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px;">
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Item Name *</label>
+        <input id="aiName" type="text" placeholder="e.g. Broccoli" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--text);"/>
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Brand / Notes</label>
+        <input id="aiSub" type="text" placeholder="e.g. Organic, from S&R" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--text);"/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+        <div>
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Unit *</label>
+          <input id="aiUnit" type="text" placeholder="pcs, kg, packs…" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--text);"/>
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Starting Qty</label>
+          <input id="aiQty" type="number" min="0" value="0" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--text);"/>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Reorder Point</label>
+        <input id="aiReo" type="number" min="0" value="1" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--text);"/>
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Category <span id="aiCatDetected" style="color:var(--accent);font-weight:600;"></span></label>
+        <select id="aiCat" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--text);">
+          <option value="supplies">🧴 Household Supplies</option>
+          <option value="pantry">🍳 Pantry Staples</option>
+          <option value="protein">🥩 Protein</option>
+          <option value="veg">🥦 Vegetables</option>
+          <option value="fruits">🍑 Fruits</option>
+        </select>
+      </div>
+    </div>
+    <p id="aiErr" style="font-size:11px;color:var(--danger);min-height:16px;margin-bottom:10px;"></p>
+    <div style="display:flex;gap:8px;">
+      <button onclick="closeAddModal()" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;color:var(--text);">Cancel</button>
+      <button onclick="confirmAddItem()" style="flex:1;padding:9px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">Add Item</button>
+    </div>
+  </div>
+</div>
 
 <script>
 const FB='https://supplies-inventory-688cc-default-rtdb.firebaseio.com';
@@ -469,7 +534,8 @@ function tryLogin(){
     $('uavatar').textContent=name.slice(0,2).toUpperCase();
     $('uname').textContent=name;
     $('perr').textContent='';pb='';ud();
-    syncAll();
+    if(name==='Kim'){document.getElementById('kimOnly').style.display='block';}
+    syncAll();loadCustomItems();
   }else{
     $('perr').textContent='Incorrect PIN. Try again.';
     pb='';setTimeout(ud,300);
@@ -483,13 +549,123 @@ function doLogout(){
 }
 
 /* ── INIT ── */
+/* ── RESET (Kim only) ── */
+function showResetModal(){
+  if(user!=='Kim'){return;}
+  document.getElementById('resetModal').style.display='flex';
+  document.getElementById('resetConfirmInput').value='';
+}
+function closeResetModal(){
+  document.getElementById('resetModal').style.display='none';
+  document.getElementById('resetConfirmInput').value='';
+}
+async function confirmReset(){
+  const val=document.getElementById('resetConfirmInput').value.trim();
+  if(val!=='RESET'){
+    document.getElementById('resetConfirmInput').style.border='1.5px solid var(--danger)';
+    setTimeout(()=>{document.getElementById('resetConfirmInput').style.border='1.5px solid var(--border)';},1000);
+    return;
+  }
+  closeResetModal();
+  setSB('⟳ resetting','saving');
+  try{
+    const reset={};
+    ITEMS.forEach(i=>{reset[i.id]={qty:0,reo:i.dR,repDate:'',reoDate:'',notes:'',by:user,ts:Date.now()};});
+    await fbPut('inv',reset);
+    await fetch(FB+'/audit.json',{method:'DELETE'});
+    inv=reset;audits=[];
+    renderAll();renderAudit();
+    setSB('● Live','live');
+  }catch(e){setSB('⚠ Error','err');}
+}
+
+/* ── AUTO-CATEGORIZE ── */
+const CAT_RULES={
+  supplies:['water','tissue','trash','bag','soap','detergent','sanitizer','towel','paper','sponge','bleach','alcohol','wipe','wrap','foil','bin','candle','match'],
+  pantry:['rice','oil','ghee','egg','garlic','onion','ginger','tomato','salt','sugar','vinegar','sauce','flour','pasta','noodle','coffee','tea','honey','spice','pepper','milk','butter','cream','cheese','stock','broth'],
+  protein:['shrimp','scallop','fish','chicken','beef','pork','tofu','tempeh','crab','squid','mussel','clam','salmon','tuna','prawn','meat','sausage','bacon','egg'],
+  veg:['zucchini','celery','mushroom','eggplant','cucumber','broccoli','spinach','kale','lettuce','cabbage','carrot','potato','camote','squash','pumpkin','asparagus','bean','pea','corn','pepper','chili','leek','bok choy','kangkong','okra','sitaw'],
+  fruits:['kiwi','papaya','mango','banana','apple','orange','grape','melon','watermelon','pineapple','lemon','lime','strawberry','blueberry','avocado','guava','lychee','rambutan','durian','jackfruit']
+};
+function autoDetectCat(name){
+  const n=name.toLowerCase();
+  for(const[cat,keywords]of Object.entries(CAT_RULES)){
+    if(keywords.some(k=>n.includes(k)))return cat;
+  }
+  return null;
+}
+
+/* ── ADD ITEM ── */
+function showAddModal(){
+  document.getElementById('addModal').style.display='flex';
+  document.getElementById('aiName').value='';
+  document.getElementById('aiSub').value='';
+  document.getElementById('aiUnit').value='';
+  document.getElementById('aiQty').value='0';
+  document.getElementById('aiReo').value='1';
+  document.getElementById('aiCat').value='pantry';
+  document.getElementById('aiCatDetected').textContent='';
+  document.getElementById('aiErr').textContent='';
+  document.getElementById('aiName').oninput=function(){
+    const detected=autoDetectCat(this.value);
+    if(detected){
+      document.getElementById('aiCat').value=detected;
+      document.getElementById('aiCatDetected').textContent='(auto-detected)';
+    } else {
+      document.getElementById('aiCatDetected').textContent='';
+    }
+  };
+}
+function closeAddModal(){
+  document.getElementById('addModal').style.display='none';
+}
+async function confirmAddItem(){
+  const name=document.getElementById('aiName').value.trim();
+  const sub=document.getElementById('aiSub').value.trim();
+  const unit=document.getElementById('aiUnit').value.trim();
+  const qty=parseInt(document.getElementById('aiQty').value)||0;
+  const reo=parseInt(document.getElementById('aiReo').value)||1;
+  const cat=document.getElementById('aiCat').value;
+  if(!name){document.getElementById('aiErr').textContent='Item name is required.';return;}
+  if(!unit){document.getElementById('aiErr').textContent='Unit is required (e.g. pcs, kg, packs).';return;}
+  const id='custom_'+name.toLowerCase().replace(/[^a-z0-9]/g,'_')+'_'+Date.now();
+  const newItem={id,name,sub,unit,dQ:qty,dR:reo,g:cat};
+  ITEMS.push(newItem);
+  inv[id]={qty,reo,repDate:'',reoDate:'',notes:'',by:user,ts:Date.now()};
+  closeAddModal();
+  try{
+    await fbPatch(`inv/${id}`,{qty,reo,repDate:'',reoDate:'',notes:'',by:user,ts:Date.now()});
+    // Save custom items list to Firebase so all members see it
+    await fbPatch('custom_items',{[id]:{id,name,sub,unit,dQ:qty,dR:reo,g:cat}});
+    await logAudit({name},`Item Added`,'—',`${qty} ${unit}`,`Added by ${user}`);
+    setSB('● Live','live');
+  }catch(e){setSB('⚠ Error','err');}
+  renderAll();
+}
+
+/* ── LOAD CUSTOM ITEMS FROM FIREBASE ── */
+async function loadCustomItems(){
+  try{
+    const custom=await fbGet('custom_items');
+    if(custom&&typeof custom==='object'){
+      Object.values(custom).forEach(item=>{
+        if(!ITEMS.find(i=>i.id===item.id)){
+          ITEMS.push(item);
+        }
+      });
+      renderAll();
+    }
+  }catch(e){}
+}
+
 const sv=localStorage.getItem('hh_u');
 if(sv&&Object.values(PINS).includes(sv)){
   user=sv;
   $('loginOverlay').style.display='none';
   $('uavatar').textContent=sv.slice(0,2).toUpperCase();
   $('uname').textContent=sv;
-  syncAll();
+  if(sv==='Kim'){document.getElementById('kimOnly').style.display='block';}
+  syncAll();loadCustomItems();
 }
 </script>
 </body>
