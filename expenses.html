@@ -1,0 +1,1892 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Expense Sharing — By Percentage of Activities</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#F7F6F2;--surf:#fff;--border:#E4E2DA;--text:#1C1C1A;--muted:#8A8880;
+  --accent:#3D6B4F;--al:#EAF2EC;--warn:#C97B2A;--wl:#FDF3E5;
+  --danger:#B94040;--dl:#FDEAEA;--r:12px;
+  --p1:#E8F0FE;--p1c:#1967D2;
+  --p2:#FFF3E0;--p2c:#E65100;
+  --p3:#FCE4EC;--p3c:#C62828;
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:20px 16px 80px;}
+
+/* HEADER */
+.header{max-width:960px;margin:0 auto 16px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;}
+.header h1{font-size:20px;font-weight:600;letter-spacing:-.3px;}
+.header .sub{font-size:12px;color:var(--muted);margin-top:2px;}
+.hright{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+
+/* TOTAL AMOUNT BOX */
+.total-box{max-width:960px;margin:0 auto 20px;background:var(--surf);border:1.5px solid var(--border);border-radius:var(--r);padding:16px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
+.total-box label{font-size:12px;font-weight:500;color:var(--muted);white-space:nowrap;}
+.total-input{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;border:none;background:transparent;color:var(--accent);width:160px;outline:none;}
+.total-input:focus{border-bottom:2px solid var(--accent);}
+.total-divider{width:1px;height:40px;background:var(--border);}
+.total-stat{text-align:center;}
+.total-stat .val{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--text);}
+.total-stat .lbl{font-size:10px;color:var(--muted);margin-top:2px;}
+
+/* LEGEND */
+.legend{max-width:960px;margin:0 auto 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+.legend-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-right:4px;}
+.lchip{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;cursor:default;}
+.lchip.p3{background:var(--p3);color:var(--p3c);}
+.lchip.p2{background:var(--p2);color:var(--p2c);}
+.lchip.p1{background:var(--p1);color:var(--p1c);}
+
+/* PERSON SECTIONS */
+.sections{max-width:960px;margin:0 auto;}
+.person-block{margin-bottom:20px;}
+.person-header{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.person-avatar{width:32px;height:32px;border-radius:50%;background:var(--accent);color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.person-name{font-size:15px;font-weight:600;}
+.person-summary{margin-left:auto;display:flex;gap:16px;align-items:center;}
+.psumval{font-family:'DM Mono',monospace;font-size:14px;font-weight:500;color:var(--accent);}
+.psumlbl{font-size:10px;color:var(--muted);}
+.add-action-btn{padding:4px 12px;border-radius:20px;border:1.5px dashed var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:11px;color:var(--muted);cursor:pointer;transition:all .15s;}
+.add-action-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* ACTION TABLE */
+.action-table{width:100%;border-collapse:collapse;background:var(--surf);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.action-table th{background:var(--text);color:#fff;padding:9px 12px;text-align:left;font-size:11px;font-weight:500;}
+.action-table td{padding:8px 12px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:12px;}
+.action-table tr:last-child td{border-bottom:none;}
+.action-table tr:hover td{background:var(--bg);}
+
+/* PRIORITY SELECTOR */
+.psel{display:flex;gap:4px;}
+.pbtn{width:26px;height:26px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg);font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.pbtn.active-3{background:var(--p3);color:var(--p3c);border-color:var(--p3c);}
+.pbtn.active-2{background:var(--p2);color:var(--p2c);border-color:var(--p2c);}
+.pbtn.active-1{background:var(--p1);color:var(--p1c);border-color:var(--p1c);}
+
+/* ACTION NAME INPUT */
+.aname{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;border:none;background:transparent;color:var(--text);width:100%;min-width:140px;outline:none;padding:2px 4px;border-radius:4px;}
+.aname:focus{background:var(--bg);border-bottom:1px solid var(--accent);}
+.aname::placeholder{color:var(--muted);}
+
+/* BADGES */
+.pct-badge{font-family:'DM Mono',monospace;font-size:11px;padding:2px 7px;border-radius:10px;font-weight:600;}
+.share-val{font-family:'DM Mono',monospace;font-size:12px;font-weight:500;color:var(--accent);}
+
+/* DELETE */
+.del-btn{width:20px;height:20px;border-radius:4px;border:none;background:transparent;color:var(--muted);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:.4;}
+.del-btn:hover{background:var(--dl);color:var(--danger);opacity:1;}
+
+/* SUMMARY FOOTER */
+.summary-footer{max-width:960px;margin:24px auto 0;background:var(--surf);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.sf-title{background:var(--text);color:#fff;padding:10px 16px;font-size:12px;font-weight:500;}
+.sf-body{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0;}
+.sf-person{padding:16px;border-right:1px solid var(--border);}
+.sf-person:last-child{border-right:none;}
+.sf-pname{font-size:12px;font-weight:600;margin-bottom:4px;}
+.sf-pct{font-family:'DM Mono',monospace;font-size:24px;font-weight:500;color:var(--accent);}
+.sf-amount{font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);margin-top:2px;}
+.sf-activities{font-size:10px;color:var(--muted);margin-top:4px;}
+.sf-bar{height:4px;background:var(--border);border-radius:2px;margin-top:8px;overflow:hidden;}
+.sf-barfill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s;}
+
+/* ADD PERSON */
+.add-person-row{max-width:960px;margin:12px auto 0;text-align:center;}
+.add-person-btn{padding:8px 20px;border-radius:20px;border:1.5px dashed var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .15s;}
+.add-person-btn:hover{border-color:var(--accent);color:var(--accent);}
+
+/* PRIORITY BAR */
+.pbar-wrap{display:flex;gap:2px;margin-top:6px;}
+.pbar-seg{height:3px;border-radius:2px;flex:1;background:var(--border);}
+.pbar-seg.w3{background:var(--p3c);}
+.pbar-seg.w2{background:var(--p2c);}
+.pbar-seg.w1{background:var(--p1c);}
+
+/* TABS */
+.tabrow{max-width:960px;margin:0 auto 16px;display:flex;border-bottom:2px solid var(--border);}
+.tbtn{padding:8px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;}
+.tbtn.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600;}
+
+/* HISTORY */
+.hist-table{max-width:960px;margin:0 auto;background:var(--surf);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.hist-table table{width:100%;border-collapse:collapse;font-size:12px;}
+.hist-table th{background:var(--text);color:#fff;padding:9px 12px;text-align:left;font-size:11px;font-weight:500;}
+.hist-table td{padding:8px 12px;border-bottom:1px solid var(--border);}
+.hist-table tr:last-child td{border-bottom:none;}
+.hist-table tr:hover td{background:var(--bg);}
+.no-hist{text-align:center;padding:40px;color:var(--muted);font-size:13px;}
+
+/* SNAPSHOT BTN */
+.snap-btn{padding:6px 16px;border-radius:20px;border:1.5px solid var(--accent);background:var(--al);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;}
+.snap-btn:hover{background:var(--accent);color:#fff;}
+
+@media(max-width:600px){
+  .sf-body{grid-template-columns:1fr 1fr;}
+  .sf-person{border-right:none;border-bottom:1px solid var(--border);}
+}
+/* STICKY HEADER */
+.sticky-top{
+  position:sticky;top:0;z-index:50;
+  background:var(--bg);
+  padding-bottom:4px;
+  border-bottom:1.5px solid transparent;
+  transition:border-color .2s;
+}
+.sticky-top.collapsed{border-bottom-color:var(--border);}
+.sticky-top .header{margin-bottom:8px;}
+.collapse-toggle{
+  padding:4px 12px;border-radius:20px;
+  border:1.5px solid var(--border);background:var(--surf);
+  font-family:'DM Sans',sans-serif;font-size:11px;font-weight:500;
+  color:var(--muted);cursor:pointer;white-space:nowrap;
+  transition:all .15s;
+}
+.collapse-toggle:hover{border-color:var(--accent);color:var(--accent);}
+.sticky-collapsible{transition:all .2s;}
+
+/* EVENT MANAGER */
+.evt-badge{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;border-radius:20px;border:1.5px solid var(--border);background:var(--surf);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .15s;max-width:160px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.evt-badge:hover{border-color:var(--accent);color:var(--accent);}
+.evt-modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;}
+.evt-modal{background:var(--surf);border-radius:16px;padding:0;max-width:500px;width:95%;max-height:85vh;overflow:hidden;display:flex;flex-direction:column;box-shadow:0 8px 40px rgba(0,0,0,.2);}
+.evt-modal-head{padding:18px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.evt-modal-body{overflow-y:auto;flex:1;padding:16px 20px;}
+.evt-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:10px;border:1.5px solid var(--border);margin-bottom:8px;cursor:pointer;transition:all .15s;}
+.evt-item:hover{border-color:var(--accent);background:var(--al);}
+.evt-item.active{border-color:var(--accent);background:var(--al);}
+.evt-item-name{font-size:13px;font-weight:600;flex:1;}
+.evt-item-meta{font-size:11px;color:var(--muted);}
+.evt-actions{display:flex;gap:6px;padding:14px 20px;border-top:1px solid var(--border);flex-wrap:wrap;}
+
+.status-paid{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:10px;font-size:10px;font-weight:700;background:var(--al);color:var(--accent);}
+.status-pending{display:inline-flex;align-items:center;gap:4px;padding:3px 9px;border-radius:10px;font-size:10px;font-weight:700;background:var(--wl);color:var(--warn);}
+.pay-card{background:var(--surf);border:1.5px solid var(--border);border-radius:var(--r);padding:14px;}
+.pay-card.all-paid{border-color:#A5D6A7;background:#F1F8E9;}
+.pay-card.has-pending{border-color:#FFB74D;background:var(--wl);}
+.mark-paid-btn{padding:4px 10px;border-radius:6px;border:1.5px solid var(--accent);background:var(--al);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;cursor:pointer;}
+.mark-paid-btn:hover{background:var(--accent);color:#fff;}
+</style>
+</head>
+<body>
+
+<!-- EVENT MANAGER MODAL -->
+<div class="evt-modal-overlay" id="evtModal">
+  <div class="evt-modal">
+    <div class="evt-modal-head">
+      <p style="font-size:15px;font-weight:600;margin:0;">📁 Events</p>
+      <button onclick="closeEvtModal()" style="width:28px;height:28px;border-radius:6px;border:none;background:var(--bg);color:var(--muted);font-size:16px;cursor:pointer;">✕</button>
+    </div>
+    <div class="evt-modal-body" id="evtList"></div>
+    <div class="evt-actions">
+      <button onclick="newEvent()" style="padding:7px 16px;border-radius:20px;border:none;background:var(--accent);color:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">+ New Event</button>
+      <button onclick="exportEvent()" style="padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;">⬇ Export</button>
+      <label style="padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;">⬆ Import<input type="file" accept=".json" onchange="importEvent(this)" style="display:none;"/></label>
+    </div>
+  </div>
+</div>
+
+<div class="sticky-top">
+
+<!-- COMPACT BAR (shown when collapsed) -->
+<div id="compactBar" style="display:none;max-width:960px;margin:0 auto 6px;display:none;align-items:center;gap:12px;flex-wrap:wrap;padding:6px 0;">
+  <span style="font-size:15px;font-weight:600;letter-spacing:-.2px;flex-shrink:0;">⚖️ <span id="cTitle">Expense Sharing</span></span>
+  <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+    <span style="font-size:11px;color:var(--muted);">₱</span>
+    <input id="cAmount" type="number" min="0" value="1000" oninput="syncCompactToMain()" style="font-family:'DM Mono',monospace;font-size:14px;font-weight:600;color:var(--accent);border:none;border-bottom:1.5px solid var(--border);background:transparent;width:90px;outline:none;padding:1px 2px;"/>
+  </div>
+  <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
+    <span style="font-size:11px;color:var(--muted);">Paid by:</span>
+    <input id="cPaidBy" placeholder="—" oninput="syncCompactToMain()" style="font-family:'DM Sans',monospace;font-size:12px;font-weight:500;border:none;border-bottom:1.5px solid var(--border);background:transparent;width:70px;outline:none;padding:1px 2px;color:var(--text);"/>
+  </div>
+  <div id="cSummaryPills" style="display:flex;gap:5px;flex-wrap:wrap;flex:1;"></div>
+  <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
+    <button class="collapse-toggle" id="stickyToggleBtn2" onclick="toggleStickyPanel()" style="font-size:11px;padding:3px 10px;">▼ Expand</button>
+    <button class="snap-btn" onclick="openSnapshotModal()" style="padding:4px 12px;font-size:11px;">📸 Trip Segment</button>
+    <button class="snap-btn" onclick="resetAll()" style="padding:4px 12px;font-size:11px;background:var(--dl);color:var(--danger);border-color:var(--danger);">🔄</button>
+  </div>
+</div>
+
+<div class="header">
+  <div style="flex:1;">
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
+      <span style="font-size:20px;">⚖️</span>
+      <input id="tripTitle" value="Expense Sharing" placeholder="Enter trip / event title…" style="font-family:'DM Sans',sans-serif;font-size:20px;font-weight:600;letter-spacing:-.3px;border:none;background:transparent;color:var(--text);outline:none;width:100%;min-width:200px;" oninput="saveLocal();if(!stickyPanelOpen)updateCompactBar();"/>
+    </div>
+    <div class="sub">By percentage of activities · Priority-weighted</div>
+  </div>
+  <div class="hright">
+    <button class="evt-badge" onclick="openEvtModal()" id="evtBadge" title="Switch event">📁 <span id="evtBadgeName">Loading…</span></button>
+    <button class="collapse-toggle" id="stickyToggleBtn" onclick="toggleStickyPanel()" title="Collapse/expand top panel">▲ Collapse</button>
+    <button class="snap-btn" onclick="openSnapshotModal()">📸 Save Trip Segment</button>
+    <button class="snap-btn" onclick="resetAll()" style="background:var(--dl);color:var(--danger);border-color:var(--danger);">🔄 Reset</button>
+  </div>
+</div>
+
+<div class="sticky-collapsible" id="stickyCollapsible">
+<!-- TOTAL AMOUNT -->
+<div class="total-box">
+  <div>
+    <label>Total Expense (₱)</label>
+    <div style="display:flex;align-items:center;gap:4px;">
+      <span style="font-size:18px;color:var(--muted);font-weight:500;">₱</span>
+      <input class="total-input" id="totalAmt" type="number" min="0" value="1000" oninput="recalc()"/>
+    </div>
+  </div>
+  <div class="total-divider"></div>
+  <div class="total-stat">
+    <div class="val" id="statPersons">3</div>
+    <div class="lbl">Persons</div>
+  </div>
+  <div class="total-divider"></div>
+  <div class="total-stat">
+    <div class="val" id="statActions">10</div>
+    <div class="lbl">Activities</div>
+  </div>
+  <div class="total-divider"></div>
+  <div class="total-stat">
+    <div class="val" id="statWeight">21</div>
+    <div class="lbl">Total Weight</div>
+  </div>
+  <div class="total-divider"></div>
+  <div class="total-stat">
+    <div class="val" id="statCheck">₱1,000</div>
+    <div class="lbl">Allocated</div>
+  </div>
+  <div class="total-divider"></div>
+  <div>
+    <label style="font-size:12px;font-weight:500;color:var(--muted);display:block;margin-bottom:4px;">Paid by</label>
+    <input id="paidBy" placeholder="Who paid?" style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;border:none;border-bottom:1.5px solid var(--border);background:transparent;color:var(--text);outline:none;width:130px;padding-bottom:2px;" oninput="saveLocal();if(!stickyPanelOpen)updateCompactBar();"/>
+    <div style="font-size:10px;color:var(--muted);margin-top:3px;">Others pay this person</div>
+  </div>
+</div>
+
+<!-- SUMMARY (moved here, after total) -->
+<div class="summary-footer" id="summaryFooter" style="max-width:960px;margin:0 auto 16px;">
+  <div class="sf-title">📊 Summary — Who Pays What</div>
+  <div class="sf-body" id="sfBody"></div>
+</div>
+
+<!-- LEGEND -->
+<div class="legend">
+  <span class="legend-title">Priority:</span>
+  <span class="lchip p3">● 3 — Critical, must be done</span>
+  <span class="lchip p2">● 2 — Important, can defer</span>
+  <span class="lchip p1">● 1 — Nice to have</span>
+</div>
+
+<!-- TABS -->
+</div><!-- end sticky-collapsible -->
+
+<div class="tabrow">
+  <button class="tbtn active" id="tb4" onclick="swTab('actions')">🗓️ Activities &amp; Approval</button>
+  <button class="tbtn" id="tb1" onclick="swTab('calc')">⚖️ Calculator</button>
+  <button class="tbtn" id="tb2" onclick="swTab('hist')">📋 Trip Segments</button>
+  <button class="tbtn" id="tb3" onclick="swTab('pay')">💸 Payments &amp; Collections</button>
+</div>
+</div><!-- end sticky-top -->
+
+<!-- CALCULATOR TAB -->
+<div id="calcPanel" style="display:none;">
+  <div class="sections" id="sections"></div>
+  <div class="add-person-row">
+    <button class="add-person-btn" onclick="addPerson()">+ Add Person</button>
+  </div>
+</div>
+
+<!-- TRIP SEGMENTS TAB -->
+<div id="histPanel" style="display:none;">
+  <div style="max-width:960px;margin:0 auto 12px;display:flex;justify-content:space-between;align-items:center;">
+    <p style="font-size:12px;color:var(--muted);" id="snapCount"></p>
+    <div style="display:flex;gap:8px;">
+      <button onclick="expandAllSnaps()" style="padding:5px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surf);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;">▼ Expand All</button>
+      <button onclick="collapseAllSnaps()" style="padding:5px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surf);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;">▲ Collapse All</button>
+    </div>
+  </div>
+  <div class="hist-table" id="histTable">
+    <p class="no-hist">No trip segments yet. Click "📸 Save Trip Segment" to record the current calculation.</p>
+  </div>
+</div>
+
+<!-- PAYMENTS PANEL -->
+<div id="payPanel" style="display:none;max-width:960px;margin:0 auto;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+    <p style="font-size:13px;color:var(--muted);">Track who has paid their share. Auto-populated from snapshots with a "Paid by" person.</p>
+    <button onclick="addManualPayment()" style="padding:6px 16px;border-radius:20px;border:1.5px solid var(--accent);background:var(--al);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">+ Add Payment</button>
+  </div>
+  <div id="payCards" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:10px;margin-bottom:20px;"></div>
+  <div style="background:var(--surf);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);">
+    <div style="background:var(--text);color:#fff;padding:10px 16px;font-size:12px;font-weight:500;display:flex;justify-content:space-between;align-items:center;">
+      <span>💸 Payment Ledger</span>
+      <select id="payFilter" onchange="renderPayments()" style="font-family:'DM Sans',sans-serif;font-size:11px;padding:3px 8px;border-radius:6px;border:none;background:rgba(255,255,255,.15);color:#fff;cursor:pointer;">
+        <option value="all" style="background:#1C1C1A;color:#fff;">All</option>
+        <option value="pending" style="background:#1C1C1A;color:#fff;">Pending</option>
+        <option value="paid" style="background:#1C1C1A;color:#fff;">Paid</option>
+      </select>
+    </div>
+    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <thead><tr style="background:var(--bg);">
+        <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:var(--muted);border-bottom:1px solid var(--border);">Event</th>
+        <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:var(--muted);border-bottom:1px solid var(--border);">Person</th>
+        <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:var(--muted);border-bottom:1px solid var(--border);">Amount Due</th>
+        <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:var(--muted);border-bottom:1px solid var(--border);">Pay To</th>
+        <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:var(--muted);border-bottom:1px solid var(--border);">Mode</th>
+        <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:var(--muted);border-bottom:1px solid var(--border);">Status</th>
+        <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:var(--muted);border-bottom:1px solid var(--border);">Date Paid</th>
+        <th style="padding:9px 12px;border-bottom:1px solid var(--border);"></th>
+      </tr></thead>
+      <tbody id="payBody"></tbody>
+    </table>
+  </div>
+</div>
+
+<!-- MANUAL PAYMENT MODAL -->
+<div id="manualModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;">
+  <div style="background:var(--surf);border-radius:16px;padding:28px 24px;max-width:400px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.2);">
+    <p id="manualModalTitle" style="font-size:16px;font-weight:600;margin-bottom:18px;">💸 Add Payment</p>
+    <div style="display:flex;flex-direction:column;gap:11px;">
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Event / Label *</label>
+        <input id="mLabel" list="mLabelList" placeholder="Select or type…" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--text);"/>
+        <datalist id="mLabelList"></datalist>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Person Who Owes *</label>
+          <input id="mPerson" list="mPersonList" placeholder="Select or type…" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--text);"/>
+          <datalist id="mPersonList"></datalist>
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Pay To *</label>
+          <input id="mPayTo" list="mPayToList" placeholder="Select or type…" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--text);"/>
+          <datalist id="mPayToList"></datalist>
+        </div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+        <div>
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Amount (₱) *</label>
+          <input id="mAmount" type="number" min="0" placeholder="0.00" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;background:var(--bg);color:var(--text);"/>
+        </div>
+        <div>
+          <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Mode of Payment</label>
+          <select id="mMode" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--text);">
+            <option value="GCash">GCash</option>
+            <option value="BPI">BPI</option>
+            <option value="BDO">BDO</option>
+            <option value="Cash">Cash</option>
+            <option value="Bank Transfer">Bank Transfer</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Date</label>
+        <input id="mDate" type="date" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;background:var(--bg);color:var(--text);"/>
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Notes</label>
+        <input id="mNote" placeholder="Optional notes or reference number" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--text);"/>
+      </div>
+    </div>
+    <p id="mErr" style="font-size:11px;color:var(--danger);min-height:16px;margin-top:8px;"></p>
+    <div style="display:flex;gap:8px;margin-top:14px;">
+      <button onclick="closeManualModal()" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;">Cancel</button>
+      <button onclick="confirmManualPayment()" style="flex:1;padding:9px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">Add Entry</button>
+    </div>
+  </div>
+</div>
+
+<!-- SAVE SNAPSHOT MODAL -->
+<div id="snapModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;">
+  <div style="background:var(--surf);border-radius:16px;padding:28px 24px;max-width:360px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.2);">
+    <p style="font-size:16px;font-weight:600;margin-bottom:16px;">📸 Save Trip Segment</p>
+    <div style="display:flex;flex-direction:column;gap:11px;">
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Label / Description *</label>
+        <input id="snapLabel" placeholder="e.g. Japan Trip, June Dinner…" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--text);" onkeydown="if(event.key==='Enter')saveSnapshot()"/>
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Date</label>
+        <input id="snapDate" type="date" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;background:var(--bg);color:var(--text);"/>
+      </div>
+    </div>
+    <p id="snapErr" style="font-size:11px;color:var(--danger);min-height:16px;margin-top:8px;"></p>
+    <div style="display:flex;gap:8px;margin-top:12px;">
+      <button onclick="closeSnapshotModal()" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;">Cancel</button>
+      <button onclick="saveSnapshot()" style="flex:1;padding:9px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">Save Trip Segment</button>
+    </div>
+  </div>
+</div>
+
+<!-- ACTIONS PANEL -->
+<div id="actionsPanel" style="max-width:960px;margin:0 auto;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+    <p style="font-size:13px;color:var(--muted);">Activities listed below require Guru approval before being included in the final expense split. Approve or disapprove each activity.</p>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button onclick="addTripSegment()" style="padding:6px 14px;border-radius:20px;border:1.5px solid var(--text);background:var(--text);color:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">+ Add Person</button>
+      <button onclick="approveAll()" id="btnApproveAll" style="padding:6px 14px;border-radius:20px;border:1.5px solid var(--accent);background:var(--al);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">✓ Approve All</button>
+      <button onclick="disapproveAll()" id="btnDisapproveAll" style="padding:6px 14px;border-radius:20px;border:1.5px solid var(--danger);background:var(--dl);color:var(--danger);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">✕ Disapprove All</button>
+    </div>
+  </div>
+  <div id="actionsContent"></div>
+</div>
+
+<!-- GURU PIN MODAL -->
+<div id="guruPinModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:300;align-items:center;justify-content:center;">
+  <div style="background:var(--surf);border-radius:16px;padding:28px 24px;max-width:320px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.25);text-align:center;">
+    <p style="font-size:18px;margin-bottom:6px;">🔒</p>
+    <p id="guruPinTitle" style="font-size:15px;font-weight:600;margin-bottom:4px;">🔒 Guru Lock</p>
+    <p id="guruPinMode" style="font-size:12px;color:var(--muted);margin-bottom:18px;">Enter Guru PIN to lock</p>
+    <input id="guruPinInput" type="password" maxlength="8" placeholder="Enter PIN" style="width:100%;padding:10px 12px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:16px;text-align:center;background:var(--bg);color:var(--text);margin-bottom:6px;" onkeydown="if(event.key==='Enter')confirmGuruLock()"/>
+    <p id="guruPinErr" style="font-size:11px;color:var(--danger);min-height:16px;margin-bottom:12px;"></p>
+    <div style="display:flex;gap:8px;">
+      <button onclick="closeGuruPinModal()" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;">Cancel</button>
+      <button id="guruPinConfirmBtn" onclick="confirmGuruLock()" style="flex:1;padding:9px;border-radius:8px;border:none;background:var(--text);color:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">🔒 Lock</button>
+    </div>
+  </div>
+</div>
+
+<!-- EDIT SNAPSHOT MODAL -->
+<div id="editModal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:200;align-items:center;justify-content:center;">
+  <div style="background:var(--surf);border-radius:16px;padding:28px 24px;max-width:480px;width:90%;box-shadow:0 8px 40px rgba(0,0,0,.2);max-height:90vh;overflow-y:auto;">
+    <p style="font-size:16px;font-weight:600;margin-bottom:16px;">✏️ Edit Trip Segment</p>
+    <div id="editModalBody"></div>
+    <div style="display:flex;gap:8px;margin-top:16px;">
+      <button onclick="closeEditModal()" style="flex:1;padding:9px;border-radius:8px;border:1.5px solid var(--border);background:var(--bg);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;cursor:pointer;">Cancel</button>
+      <button onclick="saveEditSnapshot()" style="flex:1;padding:9px;border-radius:8px;border:none;background:var(--accent);color:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── STATE ──────────────────────────────────────────
+const COLORS = ['#3D6B4F','#1967D2','#C97B2A','#B94040','#7B2FBE','#C62828','#00695C'];
+
+let persons = [
+  { id:'kim',  name:'Kim',  color:COLORS[0], actions:[
+    {id:'a1', name:'Activity 1', priority:3},
+    {id:'a2', name:'Activity 2', priority:3},
+    {id:'a3', name:'Activity 3', priority:2},
+    {id:'a4', name:'Activity 4', priority:2},
+    {id:'a5', name:'Activity 5', priority:2},
+    {id:'a6', name:'Activity 6', priority:1},
+  ]},
+  { id:'reg',  name:'Reg',  color:COLORS[1], actions:[
+    {id:'a7', name:'Activity 7', priority:3},
+    {id:'a8', name:'Activity 8', priority:2},
+    {id:'a9', name:'Activity 9', priority:2},
+  ]},
+  { id:'drei', name:'Drei', color:COLORS[2], actions:[
+    {id:'a10', name:'Activity 10', priority:1},
+  ]},
+];
+
+let snapshots = [];
+let curTab = 'calc';
+let actionCounter = 11;
+let personCounter = 4;
+
+const STORAGE_KEY = 'expense_sharing_v1';
+// ── PAYMENT LEDGER ──────────────────────────────
+let payments = []; // {id, snapLabel, person, amount, payTo, status:'pending'|'paid', datePaid, note, isManual}
+let editingSnapIdx = null;
+
+function syncPaymentsFromSnapshots(){
+  // For each snapshot, ensure every non-payer person has a payment entry
+  snapshots.forEach(s=>{
+    if(!s.paidBy||s.paidBy==='—')return;
+    s.persons.forEach(p=>{
+      if(p.name===s.paidBy)return; // payer doesn't owe themselves
+      const key = s.label+'::'+p.name;
+      const exists = payments.find(x=>x.id===key);
+      if(!exists){
+        payments.push({id:key, snapLabel:s.label, person:p.name, amount:p.amt, payTo:s.paidBy, status:'pending', datePaid:'', note:'', isManual:false});
+      } else {
+        // Update amount in case snapshot was edited
+        exists.amount = p.amt;
+        exists.payTo = s.paidBy;
+      }
+    });
+  });
+  // Remove payments whose snapshots no longer exist
+  const validKeys = snapshots.flatMap(s=>s.persons.filter(p=>p.name!==s.paidBy).map(p=>s.label+'::'+p.name));
+  payments = payments.filter(x=>x.isManual||validKeys.includes(x.id));
+  saveLocal();
+}
+
+function renderPaymentCards(){
+  const el = document.getElementById('payCards');
+  if(!el)return;
+  const persons_ = [...new Set(payments.map(p=>p.person))];
+  if(!persons_.length){ el.innerHTML='<p style="color:var(--muted);font-size:13px;grid-column:1/-1;">No payment entries yet. Save a snapshot with a "Paid by" person to generate entries.</p>'; return; }
+  el.innerHTML = persons_.map(name=>{
+    const myPayments = payments.filter(p=>p.person===name);
+    const totalDue = myPayments.reduce((s,p)=>s+(p.status==='pending'?p.amount:0),0);
+    const totalPaid = myPayments.reduce((s,p)=>s+(p.status==='paid'?p.amount:0),0);
+    const allPaid = myPayments.every(p=>p.status==='paid');
+    return `<div class="pay-card ${allPaid?'all-paid':'has-pending'}">
+      <div style="font-size:13px;font-weight:600;margin-bottom:6px;">${name}</div>
+      ${totalDue>0?`<div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--warn);">${fmt(totalDue)}</div><div style="font-size:10px;color:var(--muted);">still owes</div>`:''}
+      ${totalPaid>0?`<div style="font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);margin-top:4px;">${fmt(totalPaid)} settled</div>`:''}
+      ${allPaid?'<div style="font-size:11px;color:var(--accent);font-weight:600;margin-top:4px;">✓ All clear!</div>':''}
+    </div>`;
+  }).join('');
+}
+
+function renderPayments(){
+  const tbody = document.getElementById('payBody');
+  if(!tbody)return;
+  const filter = document.getElementById('payFilter')?document.getElementById('payFilter').value:'all';
+  const filtered = filter==='all'?payments:payments.filter(p=>p.status===filter);
+  if(!filtered.length){ tbody.innerHTML=`<tr><td colspan="7" style="text-align:center;padding:30px;color:var(--muted);">No ${filter==='all'?'':filter+' '}payment entries.</td></tr>`; return; }
+  const modeColors={'GCash':'#0066CC','BPI':'#B22222','BDO':'#005A9C','Cash':'#3D6B4F','Bank Transfer':'#7B2FBE','Other':'#8A8880'};
+  tbody.innerHTML = filtered.map((p,i)=>{
+    const modeClr=modeColors[p.modeOfPayment]||'#8A8880';
+    const modeTxt=p.modeOfPayment||'—';
+    return `<tr style="${i%2?'background:var(--bg)':''}">
+      <td style="padding:8px 12px;font-weight:500;">${p.snapLabel}${p.isManual?'<span style="font-size:9px;margin-left:6px;padding:1px 5px;border-radius:4px;background:var(--p1);color:var(--p1c);">manual</span>':''}</td>
+      <td style="padding:8px 12px;">${p.person}</td>
+      <td style="padding:8px 12px;font-family:'DM Mono',monospace;font-weight:500;color:var(--danger);">${fmt(p.amount)}</td>
+      <td style="padding:8px 12px;">${p.payTo}</td>
+      <td style="padding:8px 12px;">
+        <select onchange="setPayMode('${p.id}',this.value)" style="font-family:'DM Sans',sans-serif;font-size:10px;padding:2px 6px;border-radius:6px;border:1px solid ${modeClr}50;background:${modeClr}18;color:${modeClr};cursor:pointer;font-weight:600;">
+          <option value="GCash" ${modeTxt==='GCash'?'selected':''} style="background:#fff;color:#1C1C1A;font-weight:400;">GCash</option>
+          <option value="BPI" ${modeTxt==='BPI'?'selected':''} style="background:#fff;color:#1C1C1A;font-weight:400;">BPI</option>
+          <option value="BDO" ${modeTxt==='BDO'?'selected':''} style="background:#fff;color:#1C1C1A;font-weight:400;">BDO</option>
+          <option value="Cash" ${modeTxt==='Cash'?'selected':''} style="background:#fff;color:#1C1C1A;font-weight:400;">Cash</option>
+          <option value="Bank Transfer" ${modeTxt==='Bank Transfer'?'selected':''} style="background:#fff;color:#1C1C1A;font-weight:400;">Bank Transfer</option>
+          <option value="Other" ${modeTxt==='Other'?'selected':''} style="background:#fff;color:#1C1C1A;font-weight:400;">Other</option>
+          ${!['GCash','BPI','BDO','Cash','Bank Transfer','Other'].includes(modeTxt)&&modeTxt!=='—'?`<option value="${modeTxt}" selected style="background:#fff;color:#1C1C1A;">${modeTxt}</option>`:''}
+        </select>
+      </td>
+      <td style="padding:8px 12px;"><span class="${p.status==='paid'?'status-paid':'status-pending'}">${p.status==='paid'?'✓ Paid':'⏳ Pending'}</span></td>
+      <td style="padding:8px 12px;font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">${p.datePaid||'—'}</td>
+      <td style="padding:8px 12px;white-space:nowrap;display:flex;gap:4px;align-items:center;">
+        ${p.status==='pending'?`<button class="mark-paid-btn" onclick="markPaid('${p.id}')">✓ Mark Paid</button>`:`<button onclick="markUnpaid('${p.id}')" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:10px;cursor:pointer;color:var(--muted);">Undo</button>`}
+        <button onclick="editPaymentEntry('${p.id}')" class="del-btn" style="opacity:.6;font-size:12px;" title="Edit entry">✏️</button>
+        <button onclick="copyPaymentEntry('${p.id}')" class="del-btn" style="opacity:.6;font-size:12px;" title="Duplicate activity">⧉</button>
+        <button onclick="delPayment('${p.id}')" class="del-btn" style="margin-left:2px;" title="Delete entry">✕</button>
+      </td>
+    </tr>`;
+  }).join('');
+  renderPaymentCards();
+}
+
+function markPaid(id){
+  const p = payments.find(x=>x.id===id);
+  if(!p)return;
+  p.status='paid';
+  p.datePaid=new Date().toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});
+  saveLocal();renderPayments();
+}
+function markUnpaid(id){
+  const p = payments.find(x=>x.id===id);
+  if(!p)return;
+  p.status='pending';p.datePaid='';
+  saveLocal();renderPayments();
+}
+function setPayMode(id, mode){
+  const p=payments.find(x=>x.id===id);
+  if(!p)return;
+  p.modeOfPayment=mode;
+  saveLocal();renderPayments();
+}
+
+function copyPaymentEntry(id){
+  const p=payments.find(x=>x.id===id);
+  if(!p)return;
+  const copy={
+    ...p,
+    id:'manual_'+Date.now(),
+    snapLabel:p.snapLabel+' (copy)',
+    status:'pending',
+    datePaid:'',
+    isManual:true,
+    dateAdded:new Date().toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'})
+  };
+  const idx=payments.indexOf(p);
+  payments.splice(idx+1,0,copy);
+  saveLocal();renderPayments();
+}
+
+function delPayment(id){
+  const p=payments.find(x=>x.id===id);
+  const label=p?`"${p.snapLabel} — ${p.person}"`:'this entry';
+  if(!confirm(`Delete ${label}?`))return;
+  payments=payments.filter(x=>x.id!==id);
+  saveLocal();renderPayments();
+}
+let editingPaymentId = null;
+
+/* ── STICKY PANEL TOGGLE ── */
+let stickyPanelOpen = true;
+
+function updateCompactBar(){
+  // Sync title
+  const title = document.getElementById('tripTitle');
+  const cTitle = document.getElementById('cTitle');
+  if(title&&cTitle) cTitle.textContent = title.value||'Expense Sharing';
+  // Sync amount
+  const amt = document.getElementById('totalAmt');
+  const cAmt = document.getElementById('cAmount');
+  if(amt&&cAmt) cAmt.value = amt.value;
+  // Sync paid by
+  const pb = document.getElementById('paidBy');
+  const cpb = document.getElementById('cPaidBy');
+  if(pb&&cpb) cpb.value = pb.value;
+  // Render person summary pills
+  const tw = totalWeight();
+  const total = parseFloat(document.getElementById('totalAmt').value)||0;
+  const pills = document.getElementById('cSummaryPills');
+  if(pills){
+    pills.innerHTML = persons.map(p=>{
+      const pw = p.actions.reduce((s,a)=>s+a.priority,0);
+      const pct = tw>0?pw/tw:0;
+      const amt2 = total*pct;
+      return `<span style="font-size:10px;font-weight:600;padding:2px 9px;border-radius:10px;background:var(--al);color:var(--accent);">${p.name}: ${(pct*100).toFixed(1)}% · ₱${amt2.toFixed(2)}</span>`;
+    }).join('');
+  }
+}
+
+function syncCompactToMain(){
+  // Sync compact inputs back to main
+  const cAmt = document.getElementById('cAmount');
+  const cPb  = document.getElementById('cPaidBy');
+  const amt  = document.getElementById('totalAmt');
+  const pb   = document.getElementById('paidBy');
+  if(cAmt&&amt){ amt.value=cAmt.value; recalc(); }
+  if(cPb&&pb)  { pb.value=cPb.value; saveLocal(); }
+}
+
+function toggleStickyPanel(){
+  stickyPanelOpen = !stickyPanelOpen;
+  const panel    = document.getElementById('stickyCollapsible');
+  const fullHdr  = document.querySelector('.header');
+  const compact  = document.getElementById('compactBar');
+  const btn      = document.getElementById('stickyToggleBtn');
+  const sticky   = document.querySelector('.sticky-top');
+
+  if(stickyPanelOpen){
+    // Expanded
+    panel.style.display   = '';
+    fullHdr.style.display = '';
+    compact.style.display = 'none';
+    if(btn) btn.textContent = '▲ Collapse';
+    sticky.classList.remove('collapsed');
+  } else {
+    // Collapsed — show compact bar only
+    panel.style.display   = 'none';
+    fullHdr.style.display = 'none';
+    compact.style.display = 'flex';
+    if(btn) btn.textContent = '▲ Collapse';
+    sticky.classList.add('collapsed');
+    updateCompactBar();
+  }
+}
+
+function getPersonNames(){
+  const fromPersons = persons.map(p=>p.name);
+  const fromSnaps = snapshots.flatMap(s=>s.persons.map(p=>p.name));
+  return [...new Set([...fromPersons,...fromSnaps])].sort();
+}
+function getSnapLabels(){
+  return [...new Set(snapshots.map(s=>s.label))].sort();
+}
+function populateModalDataLists(){
+  const names = getPersonNames();
+  const labels = getSnapLabels();
+  const nameOpts = names.map(n=>`<option value="${n}">`).join('');
+  const labelOpts = labels.map(l=>`<option value="${l}">`).join('');
+  ['mPersonList','mPayToList'].forEach(id=>{
+    const el=document.getElementById(id);
+    if(el)el.innerHTML=nameOpts;
+  });
+  const ll=document.getElementById('mLabelList');
+  if(ll)ll.innerHTML=labelOpts;
+}
+
+function addManualPayment(){
+  editingPaymentId=null;
+  document.getElementById('manualModalTitle').textContent='💸 Add Payment';
+  document.getElementById('mPerson').value='';
+  document.getElementById('mPayTo').value='';
+  document.getElementById('mAmount').value='';
+  document.getElementById('mLabel').value='';
+  document.getElementById('mMode').value='GCash';
+  document.getElementById('mNote').value='';
+  document.getElementById('mDate').value='';
+  document.getElementById('mErr').textContent='';
+  populateModalDataLists();
+  document.getElementById('manualModal').style.display='flex';
+}
+
+function editPaymentEntry(id){
+  const p=payments.find(x=>x.id===id);
+  if(!p)return;
+  editingPaymentId=id;
+  document.getElementById('manualModalTitle').textContent='✏️ Edit Payment';
+  document.getElementById('mLabel').value=p.snapLabel||'';
+  document.getElementById('mPerson').value=p.person||'';
+  document.getElementById('mPayTo').value=p.payTo||'';
+  document.getElementById('mAmount').value=p.amount||'';
+  document.getElementById('mMode').value=p.modeOfPayment||'GCash';
+  document.getElementById('mNote').value=p.note||'';
+  document.getElementById('mDate').value='';
+  document.getElementById('mErr').textContent='';
+  populateModalDataLists();
+  document.getElementById('manualModal').style.display='flex';
+}
+function closeManualModal(){
+  document.getElementById('manualModal').style.display='none';
+}
+function confirmManualPayment(){
+  const person=document.getElementById('mPerson').value.trim();
+  const payTo=document.getElementById('mPayTo').value.trim();
+  const amt=parseFloat(document.getElementById('mAmount').value);
+  const label=document.getElementById('mLabel').value.trim();
+  const mode=document.getElementById('mMode').value;
+  const note=document.getElementById('mNote').value.trim();
+  const date=document.getElementById('mDate').value;
+  if(!person){document.getElementById('mErr').textContent='Person who owes is required.';return;}
+  if(!payTo){document.getElementById('mErr').textContent='Pay to is required.';return;}
+  if(!amt||isNaN(amt)){document.getElementById('mErr').textContent='Please enter a valid amount.';return;}
+  if(!label){document.getElementById('mErr').textContent='Event / label is required.';return;}
+
+  if(editingPaymentId){
+    // Edit mode
+    const p=payments.find(x=>x.id===editingPaymentId);
+    if(p){
+      p.snapLabel=label;p.person=person;p.payTo=payTo;
+      p.amount=amt;p.modeOfPayment=mode;p.note=note;
+      if(date)p.dateAdded=date;
+    }
+  } else {
+    // Add mode
+    payments.push({
+      id:'manual_'+Date.now(),
+      snapLabel:label,person,amount:amt,payTo,
+      status:'pending',datePaid:'',modeOfPayment:mode,note,
+      dateAdded:date||new Date().toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'}),
+      isManual:true
+    });
+  }
+  closeManualModal();
+  saveLocal();
+  renderPayments();
+}
+
+// ── EDIT SNAPSHOT ────────────────────────────────
+function editSnapshot(si){
+  const s = snapshots[si];
+  if(!s)return;
+  editingSnapIdx = si;
+  document.getElementById('editModalBody').innerHTML=`
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Snapshot Label</label>
+        <input id="editLabel" value="${s.label}" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--text);"/>
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Paid By</label>
+        <input id="editPaidBy" value="${s.paidBy||''}" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Sans',sans-serif;font-size:13px;background:var(--bg);color:var(--text);"/>
+      </div>
+      <div>
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:3px;">Total Expense (₱)</label>
+        <input id="editTotal" type="number" value="${s.total}" style="width:100%;padding:8px 10px;border:1.5px solid var(--border);border-radius:8px;font-family:'DM Mono',monospace;font-size:13px;background:var(--bg);color:var(--text);"/>
+      </div>
+      <p style="font-size:11px;color:var(--muted);">Note: Editing the total will recalculate all amounts proportionally based on original activity weights.</p>
+      <div style="border-top:1px solid var(--border);padding-top:12px;">
+        <label style="font-size:11px;color:var(--muted);display:block;margin-bottom:8px;">Activity Details</label>
+        ${s.persons.map((p,pi)=>p.actions.map((a,ai)=>`
+          <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px;">
+            <span style="font-size:11px;color:var(--muted);width:50px;flex-shrink:0;">${p.name}</span>
+            <input value="${a.name}" id="ea_${pi}_${ai}_name" style="flex:1;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:11px;background:var(--bg);color:var(--text);"/>
+            <select id="ea_${pi}_${ai}_pri" style="padding:5px;border:1px solid var(--border);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:11px;background:var(--bg);color:var(--text);">
+              <option value="3" ${a.priority===3?'selected':''}>3 — Critical</option>
+              <option value="2" ${a.priority===2?'selected':''}>2 — Important</option>
+              <option value="1" ${a.priority===1?'selected':''}>1 — Nice to have</option>
+            </select>
+          </div>`).join('')).join('')}
+      </div>
+    </div>`;
+  document.getElementById('editModal').style.display='flex';
+}
+
+function closeEditModal(){
+  document.getElementById('editModal').style.display='none';
+  editingSnapIdx=null;
+}
+
+function saveEditSnapshot(){
+  const si=editingSnapIdx;
+  if(si===null)return;
+  const s=snapshots[si];
+  s.label=document.getElementById('editLabel').value.trim()||s.label;
+  s.paidBy=document.getElementById('editPaidBy').value.trim()||'—';
+  const newTotal=parseFloat(document.getElementById('editTotal').value)||s.total;
+  s.total=newTotal;
+  // Update activity names and priorities, recalculate amounts
+  let tw=0;
+  s.persons.forEach((p,pi)=>p.actions.forEach((a,ai)=>{
+    const pri=parseInt(document.getElementById(`ea_${pi}_${ai}_pri`).value)||a.priority;
+    a.priority=pri;a.name=document.getElementById(`ea_${pi}_${ai}_name`).value||a.name;
+    tw+=pri;
+  }));
+  s.persons.forEach(p=>{
+    let pw=p.actions.reduce((s,a)=>s+a.priority,0);
+    p.pct=tw>0?pw/tw:0;p.amt=newTotal*p.pct;
+    p.actions.forEach(a=>{a.pct=tw>0?a.priority/tw:0;a.amt=newTotal*a.pct;});
+  });
+  closeEditModal();
+  syncPaymentsFromSnapshots();
+  saveLocal();
+  renderHistory();
+  if(curTab==='pay')renderPayments();
+}
+
+// ── ACTIONS / APPROVAL ──────────────────────────────
+let approvals = {}; // {personId_activityId: 'approved'|'disapproved'|'pending'}
+let actionLocked = {}; // {personId: true/false} — person section locked after submit
+let guruLock = false; // master lock by Guru PIN
+let frozenApprovals = {}; // approval state frozen at Guru lock time — final, immutable
+let lockedActivities = new Set(); // activity IDs locked in calculator (approved, cannot change priority)
+const GURU_PIN = '9999'; // Change this to Guru's PIN
+
+function buildSpontHtml(pid, actions){
+  const rows = actions.map(function(a,ai){
+    const priCells = [3,2,1].map(function(v){
+      const active = a.priority===v;
+      const bg = active ? (v===3?'#FCE4EC':v===2?'#FFF3E0':'#E8F0FE') : '#F7F6F2';
+      const cl = active ? (v===3?'#C62828':v===2?'#E65100':'#1967D2') : '#8A8880';
+      const bd = active ? '#ccc' : '#E4E2DA';
+      return '<button onclick="setActionPriority(\''+pid+'\',\''+a.id+'\','+v+')" '
+           + 'style="width:24px;height:24px;border-radius:5px;border:1.5px solid '+bd+';'
+           + 'background:'+bg+';color:'+cl+';font-size:11px;font-weight:600;cursor:pointer;">'+v+'</button>';
+    }).join('');
+    const rowBg = ai%2 ? 'background:rgba(201,123,42,.08)' : '';
+    return '<tr style="'+rowBg+'">'
+      + '<td style="padding:7px 12px;font-weight:500;font-size:12px;">'+a.name+'</td>'
+      + '<td style="padding:7px 12px;"><div style="display:flex;gap:4px;">'+priCells+'</div></td>'
+      + '<td style="padding:7px 12px;">'
+      + '<button onclick="delActionFromApproval(\''+pid+'\',\''+a.id+'\')" '
+      + 'style="width:20px;height:20px;border-radius:4px;border:none;background:transparent;'
+      + 'color:#8A8880;font-size:13px;cursor:pointer;opacity:.5;">✕</button></td>'
+      + '</tr>';
+  }).join('');
+  return '<div style="border-top:2px dashed #C97B2A;background:#FDF3E5;padding:10px 14px;">'
+    + '<div style="font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#C97B2A;margin-bottom:8px;">⚡ Spontaneous Activities (added after approval lock)</div>'
+    + '<table style="width:100%;border-collapse:collapse;font-size:12px;">'
+    + '<thead><tr style="background:#C97B2A;">'
+    + '<th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;width:40%;">Activity</th>'
+    + '<th style="padding:7px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;width:20%;">Priority</th>'
+    + '<th style="padding:7px 12px;font-size:11px;color:#fff;width:40%;"></th>'
+    + '</tr></thead><tbody>'+rows+'</tbody></table></div>';
+}
+
+function renderActionsPanel(){
+  const el = document.getElementById('actionsContent');
+  if(!el)return;
+
+  // Guru lock banner
+  let lockBanner='';
+  if(guruLock){
+    lockBanner=`<div style="background:var(--text);color:#fff;border-radius:var(--r);padding:12px 16px;margin-bottom:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;">
+      <span style="font-size:13px;font-weight:600;">🔒 Locked by Guru — no further edits allowed</span>
+      <button onclick="guruUnlock()" style="padding:4px 12px;border-radius:6px;border:1px solid rgba(255,255,255,.4);background:transparent;color:#fff;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;">Unlock</button>
+    </div>`;
+  }
+
+  // Disable/enable approve all buttons based on lock state
+  const btnA = document.getElementById('btnApproveAll');
+  const btnD = document.getElementById('btnDisapproveAll');
+  if(btnA && btnD){
+    btnA.disabled = guruLock;
+    btnD.disabled = guruLock;
+    btnA.style.opacity = guruLock ? '0.4' : '1';
+    btnD.style.opacity = guruLock ? '0.4' : '1';
+    btnA.style.cursor  = guruLock ? 'not-allowed' : 'pointer';
+    btnD.style.cursor  = guruLock ? 'not-allowed' : 'pointer';
+  }
+
+  let html=lockBanner;
+  persons.forEach(p=>{
+    if(!p.actions.length)return;
+    const ini=p.name.slice(0,2).toUpperCase();
+    const locked=actionLocked[p.id]||guruLock;
+
+    // Header row
+    const headerHtml = locked
+      ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+          <div style="width:30px;height:30px;border-radius:50%;background:${p.color};color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${ini}</div>
+          <span style="font-size:15px;font-weight:600;">
+            
+            ${p.name}
+          </span>
+          <span style="font-size:11px;color:var(--muted);">${p.actions.length} ${p.actions.length!==1?'activities':'activity'}</span>
+          ${locked&&!guruLock?`<span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--al);color:var(--accent);">✓ Submitted</span>`:''}
+          <div style="margin-left:auto;display:flex;gap:6px;">
+            <button onclick="copyPersonToCalc('${p.id}')" style="padding:4px 12px;border-radius:6px;border:1.5px solid var(--accent);background:var(--al);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;">📋 Copy to Calculator</button>
+            ${!guruLock?`<button onclick="unlockPerson('${p.id}')" style="padding:4px 12px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;">✏️ Edit</button>`:''}
+          </div>
+        </div>`
+      : `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
+          <div style="width:30px;height:30px;border-radius:50%;background:${p.color};color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${ini}</div>
+          <div>
+            
+            <input value="${p.name}" onchange="setPersonName('${p.id}',this.value)" style="font-size:15px;font-weight:600;border:none;border-bottom:1.5px solid var(--accent);background:transparent;color:var(--text);outline:none;width:180px;padding:2px 4px;" placeholder="Enter person name"/>
+          </div>
+          <span style="font-size:11px;color:var(--muted);">${p.actions.length} ${p.actions.length!==1?'activities':'activity'}</span>
+          <div style="margin-left:auto;display:flex;gap:6px;">
+            <button onclick="addActionFromApproval('${p.id}')" style="padding:4px 12px;border-radius:6px;border:1.5px dashed var(--border);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;">+ Add Activity</button>
+            <button onclick="submitPersonActions('${p.id}')" style="padding:4px 14px;border-radius:6px;border:none;background:var(--accent);color:#fff;font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;">Submit ✓</button>
+          </div>
+        </div>`;
+
+    // Split activities: frozen approved vs spontaneous (added post-lock)
+    // Exclude _calcOnly activities (added directly in calculator — not part of approval)
+    const visibleActions = p.actions.filter(a => !a._calcOnly);
+    const frozenActions = guruLock
+      ? visibleActions.filter(a => !a._spontaneous)
+      : visibleActions;
+    const spontaneousActions = guruLock
+      ? visibleActions.filter(a => a._spontaneous)
+      : [];
+
+    // Rows
+    const rowsHtml = frozenActions.map((a,ai)=>{
+      const key=p.id+'_'+a.id;
+      const apv=approvals[key]||'pending';
+      const pBg=a.priority===3?'var(--p3)':a.priority===2?'var(--p2)':'var(--p1)';
+      const pCl=a.priority===3?'var(--p3c)':a.priority===2?'var(--p2c)':'var(--p1c)';
+      const apvBg=apv==='approved'?'var(--al)':apv==='disapproved'?'var(--dl)':'var(--wl)';
+      const apvCl=apv==='approved'?'var(--accent)':apv==='disapproved'?'var(--danger)':'var(--warn)';
+      const apvTxt=apv==='approved'?'✓ Approved':apv==='disapproved'?'✕ Disapproved':'⏳ Pending';
+
+      if(locked){
+        // Locked view: show approval buttons — disapproved rows kept for audit trail
+        const rowStyle = ai%2 ? 'background:var(--bg)' : '';
+        const disapproved = apv === 'disapproved';
+        return `<tr style="${rowStyle}${disapproved?';opacity:0.65':''}">
+          <td style="padding:8px 12px;font-weight:500;font-size:12px;">
+            <span style="${disapproved?'text-decoration:line-through;color:var(--muted);':''}">
+              ${a.name}
+            </span>
+            ${disapproved?'<span style="font-size:9px;margin-left:6px;color:var(--danger);font-weight:600;">excluded from calculator</span>':''}
+          </td>
+          <td style="padding:8px 12px;text-align:center;"><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:${pBg};color:${pCl};">${a.priority}</span></td>
+          <td style="padding:8px 12px;">
+            ${guruLock
+              ? `<span style="font-size:10px;font-weight:600;padding:2px 9px;border-radius:10px;background:${apvBg};color:${apvCl};">${apvTxt}</span>`
+              : `<div style="display:flex;gap:6px;">
+                  <button onclick="setApproval('${p.id}','${a.id}','approved')" style="padding:4px 10px;border-radius:6px;border:1.5px solid var(--accent);background:${apv==='approved'?'var(--accent)':'transparent'};color:${apv==='approved'?'#fff':'var(--accent)'};font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;">✓ Approve</button>
+                  <button onclick="setApproval('${p.id}','${a.id}','disapproved')" style="padding:4px 10px;border-radius:6px;border:1.5px solid var(--danger);background:${apv==='disapproved'?'var(--danger)':'transparent'};color:${apv==='disapproved'?'#fff':'var(--danger)'};font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;">✕ Disapprove</button>
+                </div>`
+            }
+          </td>
+        </tr>`;
+      } else {
+        // Edit view: editable name, radio priority, no approval
+        return `<tr style="${ai%2?'background:var(--bg)':''}">
+          <td style="padding:8px 12px;">
+            <input value="${a.name}" onchange="setActionName('${p.id}','${a.id}',this.value)" style="font-size:12px;font-weight:500;border:none;border-bottom:1px solid var(--border);background:transparent;color:var(--text);outline:none;width:100%;min-width:120px;" placeholder="Activity name"/>
+          </td>
+          <td style="padding:8px 12px;">
+            <div style="display:flex;gap:6px;align-items:center;">
+              ${[3,2,1].map(v=>`
+                <label style="display:flex;align-items:center;gap:3px;cursor:pointer;">
+                  <input type="radio" name="pri_${p.id}_${a.id}" value="${v}" ${a.priority===v?'checked':''} onchange="setActionPriority('${p.id}','${a.id}',${v})" style="accent-color:${v===3?'#C62828':v===2?'#E65100':'#1967D2'};cursor:pointer;"/>
+                  <span style="font-size:11px;font-weight:600;padding:1px 6px;border-radius:6px;background:${v===3?'var(--p3)':v===2?'var(--p2)':'var(--p1)'};color:${v===3?'var(--p3c)':v===2?'var(--p2c)':'var(--p1c)'};">${v}</span>
+                </label>`).join('')}
+            </div>
+          </td>
+          <td style="padding:8px 12px;color:var(--muted);font-size:11px;">Submit to enable</td>
+          <td style="padding:8px 12px;">
+            ${!actionLocked[p.id]
+              ? `<button onclick="delActionFromApproval('${p.id}','${a.id}')" class="del-btn" style="opacity:.5;" title="Remove activity">✕</button>`
+              : ''}
+          </td>
+        </tr>`;
+      }
+    }).join('');
+
+    // Spontaneous activities section (post-lock additions)
+    const spontaneousHtml = spontaneousActions.length ? buildSpontHtml(p.id, spontaneousActions) : '';
+
+    html+=`<div style="margin-bottom:20px;background:var(--surf);border:1.5px solid ${locked?'var(--border)':'var(--accent)'};border-radius:var(--r);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);">
+      <div style="padding:12px 14px;background:${locked?'var(--bg)':'var(--al)'};">
+        ${headerHtml}
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr style="background:var(--text);">
+          <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;width:40%;">Activity</th>
+          <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;width:20%;">Priority</th>
+          <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;width:40%;">${guruLock?'Status':'Approval'}</th>
+        </tr></thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+      ${spontaneousHtml}
+    </div>`;
+  });
+
+  // Guru lock button at bottom
+  if(!guruLock && persons.some(p=>actionLocked[p.id])){
+    html+=`<div style="text-align:center;margin-top:16px;">
+      <button onclick="guruLockAll()" style="padding:10px 28px;border-radius:20px;border:none;background:var(--text);color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">🔒 Lock All — Guru Approval</button>
+    </div>`;
+  }
+
+  el.innerHTML=html||'<p style="text-align:center;color:var(--muted);padding:40px;font-size:13px;">No trip segments yet. Use the + Add Trip Segment button to get started.</p>';
+}
+
+function addTripSegment(){
+  if(guruLock){
+    if(!confirm('The approval list is locked.\nAdding a new person will create a spontaneous group — activities will not be part of the approved list.\nContinue?'))return;
+  }
+  const name = prompt('Enter person name:');
+  if(!name)return;
+  const id='seg_'+Date.now();
+  persons.push({
+    id,
+    name:name.trim(),
+    color:COLORS[persons.length%COLORS.length],
+    actions:[{id:'a'+(actionCounter++),name:'Activity 1',priority:2}]
+  });
+  saveLocal();
+  renderActionsPanel();
+  recalc();
+}
+
+function setActionName(pid,aid,val){
+  const p=persons.find(x=>x.id===pid);
+  const a=p&&p.actions.find(x=>x.id===aid);
+  if(a){a.name=val.trim()||'Untitled';saveLocal();}
+}
+function setActionPriority(pid,aid,val){
+  const p=persons.find(x=>x.id===pid);
+  const a=p&&p.actions.find(x=>x.id===aid);
+  if(a){a.priority=parseInt(val);saveLocal();renderActionsPanel();}
+}
+function addActionFromApproval(pid){
+  const p=persons.find(x=>x.id===pid);
+  if(!p)return;
+  if(guruLock){
+    if(!confirm('The approval list is locked.\nThis will be added as a spontaneous activity — it will appear separately from the approved list and will NOT affect the locked approvals.\nContinue?'))return;
+  }
+  const newId = 'a'+(actionCounter++);
+  const newAct = {id:newId, name:'New activity', priority:2};
+  if(guruLock) newAct._spontaneous = true;
+  p.actions.push(newAct);
+  saveLocal();renderActionsPanel();
+}
+function delActionFromApproval(pid,aid){
+  const p=persons.find(x=>x.id===pid);
+  if(!p)return;
+  const a=p.actions.find(x=>x.id===aid);
+  if(!a)return;
+  // Prevent deleting submitted or approved activities — audit trail must be preserved
+  if(!a._spontaneous && (actionLocked[pid]||guruLock)){
+    alert('This activity cannot be deleted — it is part of the approved list and must remain for audit trail.');
+    return;
+  }
+  if(p.actions.filter(x=>!x._spontaneous).length<=1 && !a._spontaneous){
+    alert('At least one activity is required per person.');
+    return;
+  }
+  p.actions=p.actions.filter(x=>x.id!==aid);
+  saveLocal();renderActionsPanel();
+}
+function submitPersonActions(pid){
+  actionLocked[pid]=true;
+  saveLocal();renderActionsPanel();
+}
+function unlockPerson(pid){
+  if(guruLock){alert('List is locked by Guru. Cannot edit.');return;}
+  actionLocked[pid]=false;
+  // Clear approvals for this person
+  persons.find(p=>p.id===pid)?.actions.forEach(a=>{delete approvals[pid+'_'+a.id];});
+  saveLocal();renderActionsPanel();
+}
+function copyPersonToCalc(pid){
+  const p=persons.find(x=>x.id===pid);
+  if(!p)return;
+  // Use frozen approvals if Guru has locked (final), else live approvals
+  const approvalSource = guruLock ? frozenApprovals : approvals;
+  const approvedActions = p.actions.filter(a=>{
+    if(a._spontaneous) return false; // spontaneous never go to approved list
+    const key = pid + '_' + a.id;
+    return approvalSource[key] === 'approved';
+  });
+  if(!approvedActions.length){
+    if(guruLock){
+      alert('No activities have been approved yet.\n\nUnlock with Guru PIN, approve activities, then lock again before copying.');
+    } else {
+      alert('No approved activities to copy. Approve at least one activity first.');
+    }
+    return;
+  }
+  if(!confirm(`Copy ${p.name}'s ${approvedActions.length} approved activit${approvedActions.length!==1?'ies':'y'} to the Calculator?\nDisapproved activities stay in the approval list for audit trail.`))return;
+
+  // TAG activities with _inCalc — do NOT mutate p.actions so disapproved stay intact
+  p.actions.forEach(a=>{
+    if(a._spontaneous){ a._inCalc = false; return; }
+    const key = pid + '_' + a.id;
+    a._inCalc = approvalSource[key] === 'approved';
+    if(a._inCalc) lockedActivities.add(a.id);
+  });
+
+  recalc();
+  swTab('calc');
+  alert(`✓ ${approvedActions.length} approved activit${approvedActions.length!==1?'ies':'y'} from ${p.name} added to Calculator. Priority is locked.`);
+}
+function guruLockAll(){
+  document.getElementById('guruPinModal').style.display='flex';
+  document.getElementById('guruPinInput').value='';
+  document.getElementById('guruPinErr').textContent='';
+  document.getElementById('guruPinInput').focus();
+}
+function closeGuruPinModal(){
+  document.getElementById('guruPinModal').style.display='none';
+}
+function confirmGuruLock(){
+  const pin=document.getElementById('guruPinInput').value.trim();
+  if(pin!==GURU_PIN){
+    document.getElementById('guruPinErr').textContent='Incorrect PIN. Try again.';
+    document.getElementById('guruPinInput').value='';
+    return;
+  }
+  // Freeze current approval state — this is now final
+  frozenApprovals = {...approvals};
+  guruLock=true;
+  saveLocal();
+  closeGuruPinModal();
+  renderActionsPanel();
+}
+function guruUnlock(){
+  document.getElementById('guruPinModal').style.display='flex';
+  document.getElementById('guruPinInput').value='';
+  document.getElementById('guruPinErr').textContent='';
+  document.getElementById('guruPinMode').textContent='Enter Guru PIN to unlock';
+  // Update modal UI for unlock mode
+  document.getElementById('guruPinTitle').textContent='🔓 Guru Unlock';
+  document.getElementById('guruPinConfirmBtn').textContent='🔓 Unlock';
+  document.getElementById('guruPinConfirmBtn').style.background='#C97B2A';
+  document.getElementById('guruPinInput').focus();
+  // Repurpose confirm button for unlock action
+  document.getElementById('guruPinConfirmBtn').onclick=function(){
+    const pin=document.getElementById('guruPinInput').value.trim();
+    if(pin!==GURU_PIN){document.getElementById('guruPinErr').textContent='Incorrect PIN.';return;}
+    guruLock=false;saveLocal();closeGuruPinModal();renderActionsPanel();
+    // Reset modal back to lock mode for next use
+    document.getElementById('guruPinTitle').textContent='🔒 Guru Lock';
+    document.getElementById('guruPinConfirmBtn').textContent='🔒 Lock';
+    document.getElementById('guruPinConfirmBtn').style.background='var(--text)';
+    document.getElementById('guruPinConfirmBtn').onclick=confirmGuruLock;
+    document.getElementById('guruPinMode').textContent='Enter Guru PIN to lock';
+  };
+}
+
+function setApproval(pid,aid,val){
+  const key=pid+'_'+aid;
+  approvals[key]=approvals[key]===val?'pending':val; // toggle
+  saveLocal();
+  renderActionsPanel();
+}
+
+function approveAll(){
+  persons.forEach(p=>p.actions.forEach(a=>{approvals[p.id+'_'+a.id]='approved';}));
+  saveLocal();renderActionsPanel();
+}
+
+function disapproveAll(){
+  persons.forEach(p=>p.actions.forEach(a=>{approvals[p.id+'_'+a.id]='disapproved';}));
+  saveLocal();renderActionsPanel();
+}
+
+// ── COPY TRIP SEGMENT TO CALCULATOR ──────────────────────
+function copySnapToCalc(si){
+  const s=snapshots[si];
+  if(!s)return;
+  if(!confirm(`Load trip segment "${s.label}" into the Calculator? This will replace your current persons and activities.`))return;
+  // Rebuild persons from snapshot — only include approved activities
+  lockedActivities = new Set();
+  persons = s.persons.map((p,i)=>{
+    const approvedOnly = p.actions.filter((a,j)=>{
+      // Check approval status stored in snapshot (if available)
+      // Fall back to including all if no approval info (legacy snapshots)
+      const snapKey = 'snap_'+si+'_p'+i+'_a'+j;
+      const liveKey = Object.keys(approvals).find(k=>k.endsWith('_'+a.id.replace(/.*_/,'')));
+      // Use snapshot's own approval data if stored, otherwise check live approvals
+      if(s.approvalData){
+        return s.approvalData['p'+i+'_a'+j]==='approved';
+      }
+      return true; // legacy snapshots: include all
+    });
+    const newActions = approvedOnly.map((a,j)=>({
+      id:'a_snap_'+i+'_'+j,
+      name:a.name,
+      priority:a.priority
+    }));
+    // Lock all copied activities in calculator
+    newActions.forEach(a=>lockedActivities.add(a.id));
+    return {
+      id:'p_snap_'+i,
+      name:p.name,
+      color:COLORS[i%COLORS.length],
+      actions:newActions
+    };
+  }).filter(p=>p.actions.length>0); // remove persons with no approved activities
+  // Set total
+  document.getElementById('totalAmt').value=s.total;
+  document.getElementById('paidBy').value=s.paidBy||'';
+  document.getElementById('tripTitle').value=s.title||s.label;
+  actionCounter=999;personCounter=999;
+  approvals={};
+  recalc();
+  swTab('calc');
+  const totalCopied = persons.reduce((s,p)=>s+p.actions.length,0);
+  alert(`✓ Trip Segment "${s.label}" loaded into Calculator.
+${totalCopied} approved activit${totalCopied!==1?'ies':'y'} copied. Priority is locked.`);;
+}
+
+// ── EVENT MANAGER ─────────────────────────────────────
+let currentEventId = null;
+
+function getEventIndex(){
+  try{ return JSON.parse(localStorage.getItem('expense_events_index')||'[]'); }
+  catch(e){ return []; }
+}
+function saveEventIndex(idx){
+  localStorage.setItem('expense_events_index', JSON.stringify(idx));
+}
+
+function initEvents(){
+  let idx = getEventIndex();
+  if(!idx.length){
+    // First run — create a default event
+    const id = 'evt_'+Date.now();
+    idx = [{id, label:'My First Event', created:new Date().toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'}), updated:'—'}];
+    saveEventIndex(idx);
+    currentEventId = id;
+  } else {
+    // Load last used event
+    const lastId = sessionStorage.getItem('lastEventId');
+    currentEventId = (lastId && idx.find(e=>e.id===lastId)) ? lastId : idx[0].id;
+  }
+  sessionStorage.setItem('lastEventId', currentEventId);
+  updateEvtBadge();
+}
+
+function updateEvtBadge(){
+  const idx = getEventIndex();
+  const evt = idx.find(e=>e.id===currentEventId);
+  const badge = document.getElementById('evtBadgeName');
+  if(badge) badge.textContent = evt ? evt.label : 'No event';
+}
+
+function openEvtModal(){
+  renderEvtList();
+  document.getElementById('evtModal').style.display='flex';
+}
+function closeEvtModal(){
+  document.getElementById('evtModal').style.display='none';
+}
+
+function renderEvtList(){
+  const idx = getEventIndex();
+  const el = document.getElementById('evtList');
+  if(!idx.length){
+    el.innerHTML='<p style="text-align:center;color:var(--muted);padding:30px;font-size:13px;">No events yet. Create one to get started.</p>';
+    return;
+  }
+  el.innerHTML = idx.map(e=>`
+    <div class="evt-item${e.id===currentEventId?' active':''}" onclick="switchEvent('${e.id}')">
+      <div style="flex:1;">
+        <div class="evt-item-name">${e.label}</div>
+        <div class="evt-item-meta">Created: ${e.created} · Updated: ${e.updated||'—'}</div>
+      </div>
+      <div style="display:flex;gap:6px;">
+        <button onclick="event.stopPropagation();renameEvent('${e.id}')" style="padding:3px 8px;border-radius:6px;border:1px solid var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:10px;cursor:pointer;color:var(--muted);">Rename</button>
+        ${idx.length>1?`<button onclick="event.stopPropagation();deleteEvent('${e.id}')" style="padding:3px 8px;border-radius:6px;border:1px solid var(--danger);background:transparent;font-family:'DM Sans',sans-serif;font-size:10px;cursor:pointer;color:var(--danger);">Delete</button>`:''}
+      </div>
+    </div>`).join('');
+}
+
+function switchEvent(id){
+  if(id===currentEventId){ closeEvtModal(); return; }
+  // Save current state first
+  saveLocal();
+  // Switch
+  currentEventId = id;
+  sessionStorage.setItem('lastEventId', id);
+  loadLocal();
+  recalc();
+  renderActionsPanel();
+  updateEvtBadge();
+  closeEvtModal();
+}
+
+function newEvent(){
+  const label = prompt('Name for this event (e.g. Japan 2027, June Dinner):');
+  if(!label) return;
+  const id = 'evt_'+Date.now();
+  const idx = getEventIndex();
+  idx.push({id, label:label.trim(), created:new Date().toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'}), updated:'—'});
+  saveEventIndex(idx);
+  // Switch to new blank event
+  currentEventId = id;
+  sessionStorage.setItem('lastEventId', id);
+  // Reset state for fresh event
+  persons=[{id:'p1',name:'Person 1',color:COLORS[0],actions:[{id:'a'+(actionCounter++),name:'New activity',priority:2}]}];
+  snapshots=[];payments=[];approvals={};frozenApprovals={};actionLocked={};guruLock=false;lockedActivities=new Set();
+  personCounter=2;
+  document.getElementById('tripTitle').value=label.trim();
+  document.getElementById('paidBy').value='';
+  document.getElementById('totalAmt').value='1000';
+  saveLocal();
+  recalc();
+  renderActionsPanel();
+  updateEvtBadge();
+  closeEvtModal();
+}
+
+function renameEvent(id){
+  const idx = getEventIndex();
+  const evt = idx.find(e=>e.id===id);
+  if(!evt) return;
+  const label = prompt('New name for this event:', evt.label);
+  if(!label) return;
+  evt.label = label.trim();
+  evt.updated = new Date().toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});
+  saveEventIndex(idx);
+  if(id===currentEventId) updateEvtBadge();
+  renderEvtList();
+}
+
+function deleteEvent(id){
+  if(!confirm('Delete this event and all its data? This cannot be undone.')) return;
+  const idx = getEventIndex();
+  const newIdx = idx.filter(e=>e.id!==id);
+  saveEventIndex(newIdx);
+  localStorage.removeItem('expense_event_'+id);
+  // If deleted current, switch to first remaining
+  if(id===currentEventId && newIdx.length){
+    switchEvent(newIdx[0].id);
+  } else {
+    renderEvtList();
+  }
+}
+
+function exportEvent(){
+  const data = localStorage.getItem(currentEventKey());
+  if(!data){ alert('No data to export.'); return; }
+  const idx = getEventIndex();
+  const evt = idx.find(e=>e.id===currentEventId);
+  const blob = new Blob([JSON.stringify({event:evt, data:JSON.parse(data)}, null, 2)], {type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=(evt?evt.label.replace(/[^a-z0-9]/gi,'_'):'event')+'_expense.json';
+  a.click(); URL.revokeObjectURL(url);
+}
+
+function importEvent(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    try{
+      const obj = JSON.parse(e.target.result);
+      const label = (obj.event&&obj.event.label)||file.name.replace('.json','');
+      const id = 'evt_'+Date.now();
+      const idx = getEventIndex();
+      idx.push({id, label, created:new Date().toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'}), updated:'imported'});
+      saveEventIndex(idx);
+      localStorage.setItem('expense_event_'+id, JSON.stringify(obj.data||obj));
+      alert(`✓ Event "${label}" imported. Switching to it now.`);
+      switchEvent(id);
+    }catch(ex){ alert('Invalid file. Please export a valid event JSON.'); }
+  };
+  reader.readAsText(file);
+  input.value='';
+}
+
+function currentEventKey(){
+  return 'expense_event_'+(currentEventId||'default');
+}
+function saveLocal(){
+  try{
+    const tripTitle = document.getElementById('tripTitle')?document.getElementById('tripTitle').value:'';
+    const paidBy = document.getElementById('paidBy')?document.getElementById('paidBy').value:'';
+    const totalAmt_ = document.getElementById('totalAmt')?document.getElementById('totalAmt').value:'1000';
+    const data = {persons, snapshots, payments, approvals, frozenApprovals, actionLocked, guruLock, lockedActivities:[...lockedActivities], actionCounter, personCounter, tripTitle, paidBy, totalAmt:totalAmt_};
+    localStorage.setItem(currentEventKey(), JSON.stringify(data));
+    // Update event index metadata
+    updateEventIndex(tripTitle);
+  }catch(e){}
+}
+function updateEventIndex(label){
+  try{
+    const idx = JSON.parse(localStorage.getItem('expense_events_index')||'[]');
+    const existing = idx.find(e=>e.id===currentEventId);
+    if(existing){
+      existing.label = label||existing.label;
+      existing.updated = new Date().toLocaleDateString('en-PH',{month:'short',day:'numeric',year:'numeric'});
+    }
+    localStorage.setItem('expense_events_index', JSON.stringify(idx));
+  }catch(e){}
+}
+function loadLocal(){
+  try{
+    const d = JSON.parse(localStorage.getItem(currentEventKey()));
+    if(d){
+      persons=d.persons||[{id:'p1',name:'Person 1',color:COLORS[0],actions:[{id:'a1',name:'New activity',priority:2}]}];
+      snapshots=d.snapshots||[];
+      payments=d.payments||[];
+      approvals=d.approvals||{};
+      actionLocked=d.actionLocked||{};
+      guruLock=d.guruLock||false;
+      lockedActivities=new Set(d.lockedActivities||[]);
+      frozenApprovals=d.frozenApprovals||{};
+      actionCounter=d.actionCounter||11;
+      personCounter=d.personCounter||4;
+      if(d.tripTitle) document.getElementById('tripTitle').value=d.tripTitle;
+      if(d.paidBy) document.getElementById('paidBy').value=d.paidBy;
+      if(d.totalAmt) document.getElementById('totalAmt').value=d.totalAmt;
+    }
+  }catch(e){}
+}
+
+// ── CALC ──────────────────────────────────────────
+function totalWeight(){
+  const anyInCalc = persons.some(p=>p.actions.some(a=>a._inCalc));
+  return persons.reduce((s,p)=>s+p.actions.reduce((a,ac)=>{
+    if(anyInCalc && !ac._inCalc) return a;
+    return a+ac.priority;
+  },0),0);
+}
+function personWeight(p){
+  const anyInCalc = persons.some(pp=>pp.actions.some(a=>a._inCalc));
+  return p.actions.reduce((s,a)=>{
+    if(anyInCalc && !a._inCalc) return s;
+    return s+a.priority;
+  },0);
+}
+function totalAmt(){ return parseFloat(document.getElementById('totalAmt').value)||0; }
+
+function recalc(){
+  const total = totalAmt();
+  const tw = totalWeight();
+  const anyInCalcStat = persons.some(p=>p.actions.some(a=>a._inCalc));
+  const allActivities = anyInCalcStat
+    ? persons.reduce((s,p)=>s+p.actions.filter(a=>a._inCalc).length,0)
+    : persons.reduce((s,p)=>s+p.actions.length,0);
+  document.getElementById('statPersons').textContent = persons.length;
+  document.getElementById('statActions').textContent = allActivities;
+  document.getElementById('statWeight').textContent = tw;
+  document.getElementById('statCheck').textContent = '₱'+total.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
+  renderSections();
+  renderSummary();
+  if(!stickyPanelOpen) updateCompactBar();
+  saveLocal();
+}
+
+function fmt(n){ return '₱'+n.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2}); }
+function fmtPct(n){ return (n*100).toFixed(2)+'%'; }
+
+// ── RENDER SECTIONS ──────────────────────────────
+function renderSections(){
+  // Only show activities marked for calculator (_inCalc), or all if none are tagged
+  const anyInCalc = persons.some(p=>p.actions.some(a=>a._inCalc));
+
+  const tw = totalWeight();
+  const total = totalAmt();
+  const el = document.getElementById('sections');
+  el.innerHTML = persons.map((p,pi)=>{
+    const pw = personWeight(p);
+    const pPct = tw>0 ? pw/tw : 0;
+    const pAmt = total * pPct;
+    const ini = p.name.slice(0,2).toUpperCase();
+    const actionsToShow = anyInCalc ? p.actions.filter(a=>a._inCalc) : p.actions;
+    const rows = actionsToShow.map((a,ai)=>{
+      const aPct = tw>0 ? a.priority/tw : 0;
+      const aAmt = total * aPct;
+      const pBg = a.priority===3?'var(--p3)':a.priority===2?'var(--p2)':'var(--p1)';
+      const pCl = a.priority===3?'var(--p3c)':a.priority===2?'var(--p2c)':'var(--p1c)';
+      const isLocked = lockedActivities.has(a.id);
+      const calcPBg = a.priority===3?'var(--p3)':a.priority===2?'var(--p2)':'var(--p1)';
+      const calcPCl = a.priority===3?'var(--p3c)':a.priority===2?'var(--p2c)':'var(--p1c)';
+      const btns = isLocked
+        ? '<div style="display:flex;align-items:center;gap:5px;">'
+          + '<span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:6px;background:'+calcPBg+';color:'+calcPCl+';">'+a.priority+'</span>'
+          + '<span style="font-size:9px;color:var(--muted);font-style:italic;">🔒 Approved</span>'
+          + '</div>'
+        : [3,2,1].map(v=>'<button class="pbtn'+(a.priority===v?' active-'+v:'')+'" onclick="setPriority(\'' +p.id+ '\',\''+a.id+'\','+v+')">'+v+'</button>').join('');
+      return `<tr>
+        <td><input class="aname" value="${a.name}" placeholder="Activity name…" onchange="setName('${p.id}','${a.id}',this.value)"/></td>
+        <td><div class="psel">${btns}</div></td>
+        <td><span class="pct-badge" style="background:${pBg};color:${pCl};">${fmtPct(aPct)}</span></td>
+        <td><span class="share-val">${fmt(aAmt)}</span></td>
+        <td style="white-space:nowrap;">
+          <button class="del-btn" onclick="dupAction('${p.id}','${a.id}')" title="Duplicate" style="opacity:.5;font-size:12px;margin-right:2px;">⧉</button>
+          <button class="del-btn" onclick="delAction('${p.id}','${a.id}')" title="Remove">✕</button>
+        </td>
+      </tr>`;
+    }).join('');
+    return `<div class="person-block">
+      <div class="person-header">
+        <div class="person-avatar" style="background:${p.color};">${ini}</div>
+        <div style="flex:1;">
+          <input style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;border:none;background:transparent;color:var(--text);width:160px;outline:none;padding:2px 4px;border-radius:4px;" value="${p.name}" onchange="setPersonName('${p.id}',this.value)" onclick="this.select()"/>
+        </div>
+        <div class="person-summary">
+          <div>
+            <div class="psumval">${fmtPct(pPct)}</div>
+            <div class="psumlbl">share</div>
+          </div>
+          <div>
+            <div class="psumval">${fmt(pAmt)}</div>
+            <div class="psumlbl">amount</div>
+          </div>
+        </div>
+        <button class="add-action-btn" onclick="addAction('${p.id}')">+ Add Activity</button>
+        <button class="del-btn" onclick="delPerson('${p.id}')" title="Remove person" style="opacity:.3;font-size:15px;">✕</button>
+      </div>
+      <table class="action-table">
+        <thead><tr>
+          <th style="width:40%;">Activity</th>
+          <th style="width:20%;">Priority</th>
+          <th style="width:15%;">% Share</th>
+          <th style="width:20%;">Amount (₱)</th>
+          <th style="width:10%;"></th>
+        </tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      </div><!-- end snap-body -->
+    </div>`;
+  }).join('');
+}
+
+// ── RENDER SUMMARY ────────────────────────────────
+function renderSummary(){
+  const tw = totalWeight();
+  const total = totalAmt();
+  const sfBody = document.getElementById('sfBody');
+  sfBody.innerHTML = persons.map(p=>{
+    const pw = personWeight(p);
+    const pPct = tw>0 ? pw/tw : 0;
+    const pAmt = total * pPct;
+    const ini = p.name.slice(0,2).toUpperCase();
+    return `<div class="sf-person">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <div class="person-avatar" style="width:26px;height:26px;font-size:10px;background:${p.color};">${ini}</div>
+        <span class="sf-pname">${p.name}</span>
+      </div>
+      <div class="sf-pct">${(pPct*100).toFixed(1)}%</div>
+      <div class="sf-amount">${fmt(pAmt)}</div>
+      <div class="sf-activities">${p.actions.length} ${p.actions.length!==1?'activities':'activity'} · weight: ${pw}/${tw}</div>
+      <div class="sf-bar"><div class="sf-barfill" style="width:${(pPct*100).toFixed(1)}%;background:${p.color};"></div></div>
+    </div>`;
+  }).join('');
+}
+
+// ── RENDER HISTORY ────────────────────────────────
+function toggleSnap(si){
+  const body = document.getElementById('snap-body-'+si);
+  const arrow = document.getElementById('snap-arrow-'+si);
+  const pills = document.getElementById('snap-pills-'+si);
+  if(!body)return;
+  const collapsed = body.style.display==='none';
+  body.style.display = collapsed ? '' : 'none';
+  if(arrow) arrow.style.transform = collapsed ? 'rotate(0deg)' : 'rotate(-90deg)';
+  // Show pills only when collapsed
+  if(pills) pills.style.display = collapsed ? 'flex' : 'none';
+}
+
+function expandAllSnaps(){
+  snapshots.forEach((_,i)=>{
+    const body=document.getElementById('snap-body-'+i);
+    const arrow=document.getElementById('snap-arrow-'+i);
+    const pills=document.getElementById('snap-pills-'+i);
+    if(body){body.style.display='';}
+    if(arrow){arrow.style.transform='rotate(0deg)';}
+    if(pills){pills.style.display='none';}
+  });
+}
+
+function collapseAllSnaps(){
+  snapshots.forEach((_,i)=>{
+    const body=document.getElementById('snap-body-'+i);
+    const arrow=document.getElementById('snap-arrow-'+i);
+    const pills=document.getElementById('snap-pills-'+i);
+    if(body){body.style.display='none';}
+    if(arrow){arrow.style.transform='rotate(-90deg)';}
+    if(pills){pills.style.display='flex';}
+  });
+}
+
+function renderHistory(){
+  const el = document.getElementById('histTable');
+  if(!snapshots.length){
+    el.innerHTML='<p class="no-hist">No trip segments yet. Click "📸 Save Trip Segment" to record the current calculation.</p>';
+    return;
+  }
+  const items = snapshots.slice().reverse();
+  document.getElementById('snapCount').textContent = `${snapshots.length} trip segment${snapshots.length!==1?'s':''}`;
+  el.innerHTML = items.map((s,ri)=>{
+    const si = snapshots.length-1-ri;
+    const allActivities = s.persons.flatMap(p=>p.actions.map(a=>({...a,person:p.name,personPct:p.pct,personAmt:p.amt})));
+    return `<div style="margin-bottom:20px;border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;">
+      <!-- Snapshot header -->
+      <div style="background:var(--text);color:#fff;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;cursor:pointer;" onclick="toggleSnap(${si})">
+        <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap;">
+          <span id="snap-arrow-${si}" style="font-size:12px;transition:transform .2s;">▼</span>
+          <span style="font-size:13px;font-weight:600;">${s.label}</span>
+          <span style="font-size:11px;opacity:.6;">${s.snapDate?s.snapDate+' · ':''} ${s.date}</span>
+          <span style="font-family:'DM Mono',monospace;font-size:12px;opacity:.9;">${fmt(s.total)}</span>
+          ${s.paidBy&&s.paidBy!=='—'?`<span style="font-size:11px;opacity:.7;background:rgba(255,255,255,.1);padding:2px 8px;border-radius:10px;">Paid by: ${s.paidBy}</span>`:''}
+          <!-- Per-person summary pills shown inline in header -->
+          <span id="snap-pills-${si}" style="display:none;gap:5px;flex-wrap:wrap;">${s.persons.map(p=>`<span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:rgba(255,255,255,.15);color:#fff;">${p.name}: ${(p.pct*100).toFixed(1)}% · ${fmt(p.amt)}</span>`).join('')}</span>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;flex-shrink:0;">
+          <button onclick="event.stopPropagation();copySnapToCalc(${si})" style="padding:2px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.4);background:transparent;color:#fff;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;font-weight:500;" title="Copy to Calculator">📋 Use</button>
+          <button onclick="event.stopPropagation();editSnapshot(${si})" style="padding:2px 10px;border-radius:6px;border:1px solid rgba(255,255,255,.4);background:transparent;color:#fff;font-family:'DM Sans',sans-serif;font-size:11px;cursor:pointer;font-weight:500;" title="Edit snapshot">✏️ Edit</button>
+          <button class="del-btn" onclick="event.stopPropagation();delSnapshot(${si})" style="opacity:.6;color:#fff;" title="Delete snapshot">✕</button>
+        </div>
+      </div>
+      <!-- Collapsible body -->
+      <div id="snap-body-${si}">
+      <!-- Meta row -->
+      <div style="display:flex;gap:24px;padding:10px 16px;background:var(--bg);border-bottom:1px solid var(--border);flex-wrap:wrap;">
+        <div><span style="font-size:10px;color:var(--muted);">TOTAL EXPENSE</span><div style="font-family:'DM Mono',monospace;font-size:15px;font-weight:600;color:var(--accent);">${fmt(s.total)}</div></div>
+        <div><span style="font-size:10px;color:var(--muted);">PAID BY</span><div style="font-size:13px;font-weight:600;">${s.paidBy||'—'}</div></div>
+        <div><span style="font-size:10px;color:var(--muted);">PERSONS</span><div style="font-size:13px;font-weight:600;">${s.persons.length}</div></div>
+        <div><span style="font-size:10px;color:var(--muted);">ACTIONS</span><div style="font-size:13px;font-weight:600;">${allActivities.length}</div></div>
+      </div>
+      <!-- Summary per person -->
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));border-bottom:1px solid var(--border);">
+        ${s.persons.map(p=>`<div style="padding:10px 14px;border-right:1px solid var(--border);">
+          <div style="font-size:11px;font-weight:600;margin-bottom:2px;">${p.name}</div>
+          <div style="font-family:'DM Mono',monospace;font-size:18px;font-weight:500;color:var(--accent);">${(p.pct*100).toFixed(1)}%</div>
+          <div style="font-family:'DM Mono',monospace;font-size:11px;color:var(--muted);">${fmt(p.amt)}</div>
+          ${s.paidBy&&s.paidBy!=='—'&&s.paidBy!==p.name?`<div style="font-size:9px;color:var(--warn);margin-top:3px;">→ Pay ${s.paidBy}</div>`:''}
+          ${s.paidBy&&s.paidBy===p.name?`<div style="font-size:9px;color:var(--accent);margin-top:3px;">✓ Paid</div>`:''}
+        </div>`).join('')}
+      </div>
+      <!-- Full activity breakdown -->
+      <table style="width:100%;border-collapse:collapse;font-size:11px;">
+        <thead><tr style="background:var(--bg);">
+          <th style="padding:7px 12px;text-align:left;font-weight:500;color:var(--muted);border-bottom:1px solid var(--border);">Person</th>
+          <th style="padding:7px 12px;text-align:left;font-weight:500;color:var(--muted);border-bottom:1px solid var(--border);">Activity</th>
+          <th style="padding:7px 12px;text-align:left;font-weight:500;color:var(--muted);border-bottom:1px solid var(--border);">Priority</th>
+          <th style="padding:7px 12px;text-align:left;font-weight:500;color:var(--muted);border-bottom:1px solid var(--border);">% Share</th>
+          <th style="padding:7px 12px;text-align:left;font-weight:500;color:var(--muted);border-bottom:1px solid var(--border);">Amount</th>
+        </tr></thead>
+        <tbody>${allActivities.map((a,i)=>{
+          const pBg=a.priority===3?'var(--p3)':a.priority===2?'var(--p2)':'var(--p1)';
+          const pCl=a.priority===3?'var(--p3c)':a.priority===2?'var(--p2c)':'var(--p1c)';
+          return `<tr style="${i%2?'background:var(--bg)':''}">
+            <td style="padding:6px 12px;border-bottom:1px solid var(--border);font-weight:500;">${a.person}</td>
+            <td style="padding:6px 12px;border-bottom:1px solid var(--border);">${a.name}</td>
+            <td style="padding:6px 12px;border-bottom:1px solid var(--border);"><span style="font-size:10px;font-weight:600;padding:2px 6px;border-radius:8px;background:${pBg};color:${pCl};">${a.priority}</span></td>
+            <td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;">${(a.pct*100).toFixed(2)}%</td>
+            <td style="padding:6px 12px;border-bottom:1px solid var(--border);font-family:'DM Mono',monospace;font-weight:500;color:var(--accent);">${fmt(a.amt)}</td>
+          </tr>`;
+        }).join('')}</tbody>
+      </table>
+    </div>`;
+  }).join('');
+}
+
+// ── ACTIONS ────────────────────────────────────────
+function setPriority(pid, aid, val){
+  const p = persons.find(x=>x.id===pid);
+  const a = p.actions.find(x=>x.id===aid);
+  a.priority = val;
+  recalc();
+}
+function setName(pid, aid, val){
+  const p = persons.find(x=>x.id===pid);
+  const a = p.actions.find(x=>x.id===aid);
+  a.name = val.trim()||'Untitled';
+  saveLocal();
+}
+function setPersonName(pid, val){
+  const p = persons.find(x=>x.id===pid);
+  p.name = val.trim()||'Person';
+  recalc();
+}
+function addAction(pid){
+  const p = persons.find(x=>x.id===pid);
+  if(!p) return;
+  // Check if this person has any _inCalc activities — if so, new one is also calc-only
+  const hasInCalc = p.actions.some(a=>a._inCalc);
+  const newAct = {id:'a'+actionCounter++, name:'New activity', priority:2};
+  if(hasInCalc) {
+    newAct._inCalc = true;   // appears in calculator
+    newAct._calcOnly = true; // does NOT appear in approval tab
+  }
+  p.actions.push(newAct);
+  recalc();
+}
+function delAction(pid, aid){
+  const p = persons.find(x=>x.id===pid);
+  const a = p.actions.find(x=>x.id===aid);
+  if(!a) return;
+  // Only allow deleting activities added directly in calculator (_calcOnly)
+  // Approval-tracked activities cannot be removed from calculator
+  if(!a._calcOnly && a._inCalc){
+    alert('This activity was transferred from the approved list and cannot be deleted from the Calculator.');
+    return;
+  }
+  const calcActivities = p.actions.filter(x=>x._inCalc||(!x._calcOnly&&!x._inCalc));
+  if(calcActivities.length<=1){alert('Each person needs at least 1 activity in the Calculator.');return;}
+  p.actions = p.actions.filter(x=>x.id!==aid);
+  recalc();
+}
+function addPerson(){
+  const name = prompt('Enter person name:');
+  if(!name)return;
+  persons.push({
+    id:'p'+(personCounter++),
+    name: name.trim(),
+    color: COLORS[persons.length % COLORS.length],
+    actions:[{id:'a'+(actionCounter++), name:'New action', priority:2}]
+  });
+  recalc();
+}
+function delPerson(pid){
+  if(persons.length<=1){alert('Need at least 1 person.');return;}
+  if(!confirm('Remove this trip segment and all its activities?'))return;
+  persons = persons.filter(p=>p.id!==pid);
+  recalc();
+}
+
+// ── SNAPSHOT ──────────────────────────────────────
+function dupAction(pid, aid){
+  const p = persons.find(x=>x.id===pid);
+  const a = p.actions.find(x=>x.id===aid);
+  const idx = p.actions.indexOf(a);
+  const copy = {id:'a'+(actionCounter++), name:a.name+' (copy)', priority:a.priority};
+  // Inherit calc-only flag so duplicates don't leak into approval tab
+  if(a._calcOnly) copy._calcOnly = true;
+  if(a._inCalc)   copy._inCalc   = true;
+  p.actions.splice(idx+1, 0, copy);
+  recalc();
+}
+
+function resetAll(){
+  if(!confirm('Reset the Calculator?\nThis will clear the trip title, amount, paid by, and any activities added in the Calculator.\n\nThe Activities & Approval tab, trip segments, and payment records will NOT be affected.'))return;
+
+  // Remove only calculator-added activities (_calcOnly), keep approval-tracked ones
+  persons.forEach(p=>{
+    p.actions = p.actions.filter(a => !a._calcOnly);
+    // Clear the calculator overlay flags — approval list stays intact
+    p.actions.forEach(a => { delete a._inCalc; });
+  });
+
+  // Clear only calculator-specific state
+  lockedActivities = new Set();
+
+  // Reset calculator header fields
+  document.getElementById('tripTitle').value = 'Expense Sharing';
+  document.getElementById('paidBy').value = '';
+  document.getElementById('totalAmt').value = '1000';
+
+  // Recalculate calculator view only — do NOT touch approval tab state
+  recalc();
+}
+
+function openSnapshotModal(){
+  document.getElementById('snapModal').style.display='flex';
+  document.getElementById('snapLabel').value='';
+  document.getElementById('snapDate').value=new Date().toISOString().split('T')[0];
+  document.getElementById('snapErr').textContent='';
+}
+function closeSnapshotModal(){
+  document.getElementById('snapModal').style.display='none';
+}
+function saveSnapshot(){
+  const label = document.getElementById('snapLabel').value.trim();
+  const snapDate = document.getElementById('snapDate').value;
+  if(!label){document.getElementById('snapErr').textContent='Please enter a label.';return;}
+  closeSnapshotModal();
+  const tw = totalWeight();
+  const total = totalAmt();
+  const paidBy = document.getElementById('paidBy').value.trim();
+  const title = document.getElementById('tripTitle').value.trim();
+  const snap = {
+    label: label||'Snapshot',
+    title: title||'Expense Sharing',
+    snapDate: snapDate||new Date().toISOString().split('T')[0],
+    date: new Date().toLocaleString('en-PH',{month:'short',day:'numeric',year:'numeric',hour:'2-digit',minute:'2-digit'}),
+    total,
+    paidBy: paidBy||'—',
+    persons: persons.map(p=>{
+      const pw = personWeight(p);
+      const pPct = tw>0?pw/tw:0;
+      return {
+        name: p.name,
+        weight: pw,
+        pct: pPct,
+        amt: total*pPct,
+        actions: p.actions.map(a=>({
+          name: a.name,
+          priority: a.priority,
+          pct: tw>0?a.priority/tw:0,
+          amt: total*(tw>0?a.priority/tw:0)
+        }))
+      };
+    })
+  };
+  // Store current approval state with the snapshot so copy is accurate later
+  snap.approvalData = {};
+  snap.persons.forEach((p,i)=>{
+    p.actions.forEach((a,j)=>{
+      // Find the original person/action IDs from live persons array
+      const liveP = persons.find(lp=>lp.name===p.name);
+      if(liveP){
+        const liveA = liveP.actions.find(la=>la.name===a.name);
+        if(liveA){
+          snap.approvalData['p'+i+'_a'+j] = approvals[liveP.id+'_'+liveA.id]||'pending';
+        }
+      }
+    });
+  });
+  snapshots.push(snap);
+  saveLocal();
+  if(curTab==='hist')renderHistory();
+  alert('✓ Trip Segment saved!');
+}
+function delSnapshot(i){
+  if(!confirm('Delete this snapshot?'))return;
+  snapshots.splice(i,1);
+  saveLocal();
+  renderHistory();
+}
+
+// ── TABS ──────────────────────────────────────────
+function swTab(tab){
+  curTab=tab;
+  document.getElementById('calcPanel').style.display=tab==='calc'?'':'none';
+  document.getElementById('histPanel').style.display=tab==='hist'?'':'none';
+  document.getElementById('payPanel').style.display=tab==='pay'?'':'none';
+  document.getElementById('actionsPanel').style.display=tab==='actions'?'':'none';
+  document.getElementById('tb1').classList.toggle('active',tab==='calc');
+  document.getElementById('tb2').classList.toggle('active',tab==='hist');
+  document.getElementById('tb3').classList.toggle('active',tab==='pay');
+  document.getElementById('tb4').classList.toggle('active',tab==='actions');
+  if(tab==='hist')renderHistory();
+  if(tab==='pay'){syncPaymentsFromSnapshots();renderPayments();}
+  if(tab==='actions')renderActionsPanel();
+}
+
+// ── INIT ──────────────────────────────────────────
+// Init events
+initEvents();
+loadLocal();
+recalc();
+swTab('actions');
+</script>
+</body>
+</html>
