@@ -448,13 +448,20 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 <!-- ACTIONS PANEL -->
 <div id="actionsPanel" style="max-width:960px;margin:0 auto;">
-  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:8px;">
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;flex-wrap:wrap;gap:8px;">
     <p style="font-size:13px;color:var(--muted);">Activities listed below require Guru approval before being included in the final expense split. Approve or disapprove each activity.</p>
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
       <button onclick="addTripSegment()" style="padding:6px 14px;border-radius:20px;border:1.5px solid var(--text);background:var(--text);color:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">+ Add Person</button>
       <button onclick="approveAll()" id="btnApproveAll" style="padding:6px 14px;border-radius:20px;border:1.5px solid var(--accent);background:var(--al);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">✓ Approve All</button>
       <button onclick="disapproveAll()" id="btnDisapproveAll" style="padding:6px 14px;border-radius:20px;border:1.5px solid var(--danger);background:var(--dl);color:var(--danger);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">✕ Disapprove All</button>
     </div>
+  </div>
+  <!-- View toggle -->
+  <div style="display:flex;gap:6px;align-items:center;margin-bottom:14px;flex-wrap:wrap;">
+    <span style="font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-right:2px;">View:</span>
+    <button class="vtbtn active" id="avBtn-transaction" onclick="setActionsView('transaction')">📋 Transaction</button>
+    <button class="vtbtn" id="avBtn-date" onclick="setActionsView('date')">📅 Date</button>
+    <button class="vtbtn" id="avBtn-person" onclick="setActionsView('person')">👤 Person</button>
   </div>
   <div id="actionsContent"></div>
 </div>
@@ -902,6 +909,17 @@ function buildSpontHtml(pid, actions){
     + '</tr></thead><tbody>'+rows+'</tbody></table></div>';
 }
 
+let actionsView = 'transaction'; // 'transaction' | 'date' | 'person'
+
+function setActionsView(v){
+  actionsView = v;
+  ['transaction','date','person'].forEach(k=>{
+    const btn = document.getElementById('avBtn-'+k);
+    if(btn) btn.classList.toggle('active', k===v);
+  });
+  renderActionsPanel();
+}
+
 function renderActionsPanel(){
   const el = document.getElementById('actionsContent');
   if(!el)return;
@@ -927,20 +945,154 @@ function renderActionsPanel(){
     btnD.style.cursor  = guruLock ? 'not-allowed' : 'pointer';
   }
 
-  let html=lockBanner;
+  if(actionsView === 'date') { el.innerHTML = lockBanner + renderActionsByDate(); return; }
+  if(actionsView === 'transaction') { el.innerHTML = lockBanner + renderActionsByTransaction(); return; }
+  // default: person view (original)
+  el.innerHTML = lockBanner + renderActionsByPerson();
+}
+
+// ── Helpers shared across view renderers ──────────────
+function apvBadge(apv){
+  const bg=apv==='approved'?'var(--al)':apv==='disapproved'?'var(--dl)':'var(--wl)';
+  const cl=apv==='approved'?'var(--accent)':apv==='disapproved'?'var(--danger)':'var(--warn)';
+  const txt=apv==='approved'?'✓ Approved':apv==='disapproved'?'✕ Disapproved':'⏳ Pending';
+  return `<span style="font-size:10px;font-weight:600;padding:2px 9px;border-radius:10px;background:${bg};color:${cl};">${txt}</span>`;
+}
+function priBadge(priority){
+  const bg=priority===3?'var(--p3)':priority===2?'var(--p2)':'var(--p1)';
+  const cl=priority===3?'var(--p3c)':priority===2?'var(--p2c)':'var(--p1c)';
+  return `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:${bg};color:${cl};">${priority}</span>`;
+}
+function apvButtons(pid, aid, apv){
+  return `<div style="display:flex;gap:6px;">
+    <button onclick="setApproval('${pid}','${aid}','approved')" style="padding:3px 9px;border-radius:6px;border:1.5px solid var(--accent);background:${apv==='approved'?'var(--accent)':'transparent'};color:${apv==='approved'?'#fff':'var(--accent)'};font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;cursor:pointer;">✓</button>
+    <button onclick="setApproval('${pid}','${aid}','disapproved')" style="padding:3px 9px;border-radius:6px;border:1.5px solid var(--danger);background:${apv==='disapproved'?'var(--danger)':'transparent'};color:${apv==='disapproved'?'#fff':'var(--danger)'};font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;cursor:pointer;">✕</button>
+  </div>`;
+}
+
+// ── VIEW: By Transaction (flat table, sorted by name) ──
+function renderActionsByTransaction(){
+  // Flatten all visible activities across persons
+  const rows = [];
+  persons.forEach(p => {
+    p.actions.filter(a=>!a._calcOnly).forEach(a => {
+      rows.push({p, a});
+    });
+  });
+  if(!rows.length) return '<p style="text-align:center;color:var(--muted);padding:40px;font-size:13px;">No activities yet.</p>';
+
+  // Sort by activity name
+  rows.sort((x,y)=>x.a.name.localeCompare(y.a.name));
+
+  const rowsHtml = rows.map(({p, a}, i) => {
+    const key = p.id+'_'+a.id;
+    const apv = approvals[key]||'pending';
+    const locked = actionLocked[p.id]||guruLock;
+    const disapproved = apv==='disapproved';
+    return `<tr style="${i%2?'background:var(--bg)':''}${disapproved?';opacity:0.6':''}">
+      <td style="padding:8px 12px;font-size:12px;font-weight:500;${disapproved?'text-decoration:line-through;color:var(--muted);':''}">${a.name}</td>
+      <td style="padding:8px 12px;">
+        <div style="display:flex;align-items:center;gap:6px;">
+          <div style="width:18px;height:18px;border-radius:50%;background:${p.color};color:#fff;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${p.name.slice(0,2).toUpperCase()}</div>
+          <span style="font-size:11px;">${p.name}</span>
+        </div>
+      </td>
+      <td style="padding:8px 12px;font-size:11px;color:var(--muted);">${a.date||'—'}</td>
+      <td style="padding:8px 12px;">${priBadge(a.priority)}</td>
+      <td style="padding:8px 12px;">${locked ? apvBadge(apv) : apvButtons(p.id, a.id, apv)}</td>
+    </tr>`;
+  }).join('');
+
+  return `<div style="background:var(--surf);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);">
+    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <thead><tr style="background:var(--text);">
+        <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">Activity</th>
+        <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">Person</th>
+        <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">Date</th>
+        <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">Priority</th>
+        <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">Approval</th>
+      </tr></thead>
+      <tbody>${rowsHtml}</tbody>
+    </table>
+  </div>`;
+}
+
+// ── VIEW: By Date ───────────────────────────────────────
+function renderActionsByDate(){
+  const rows = [];
+  persons.forEach(p => {
+    p.actions.filter(a=>!a._calcOnly).forEach(a => {
+      rows.push({p, a});
+    });
+  });
+  if(!rows.length) return '<p style="text-align:center;color:var(--muted);padding:40px;font-size:13px;">No activities yet.</p>';
+
+  rows.sort((x,y)=>{
+    const da = x.a.date||'9999', db = y.a.date||'9999';
+    return da>db?1:da<db?-1:x.a.name.localeCompare(y.a.name);
+  });
+
+  // Group by date
+  const groups = {};
+  const order = [];
+  rows.forEach(({p,a}) => {
+    const d = a.date||'No date';
+    if(!groups[d]){ groups[d]=[]; order.push(d); }
+    groups[d].push({p,a});
+  });
+
+  let html = '';
+  order.forEach(date => {
+    const items = groups[date];
+    const rowsHtml = items.map(({p,a},i) => {
+      const key = p.id+'_'+a.id;
+      const apv = approvals[key]||'pending';
+      const locked = actionLocked[p.id]||guruLock;
+      const disapproved = apv==='disapproved';
+      return `<tr style="${i%2?'background:var(--bg)':''}${disapproved?';opacity:0.6':''}">
+        <td style="padding:8px 12px;font-size:12px;font-weight:500;${disapproved?'text-decoration:line-through;color:var(--muted);':''}">${a.name}</td>
+        <td style="padding:8px 12px;">
+          <div style="display:flex;align-items:center;gap:6px;">
+            <div style="width:18px;height:18px;border-radius:50%;background:${p.color};color:#fff;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${p.name.slice(0,2).toUpperCase()}</div>
+            <span style="font-size:11px;">${p.name}</span>
+          </div>
+        </td>
+        <td style="padding:8px 12px;">${priBadge(a.priority)}</td>
+        <td style="padding:8px 12px;">${locked ? apvBadge(apv) : apvButtons(p.id, a.id, apv)}</td>
+      </tr>`;
+    }).join('');
+
+    html += `<div style="margin-bottom:16px;background:var(--surf);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);">
+      <div style="background:var(--bg);padding:8px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px;">
+        <span style="font-size:12px;font-weight:700;color:var(--text);">📅 ${date}</span>
+        <span style="font-size:10px;color:var(--muted);">${items.length} ${items.length!==1?'activities':'activity'}</span>
+      </div>
+      <table style="width:100%;border-collapse:collapse;font-size:12px;">
+        <thead><tr style="background:var(--text);">
+          <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">Activity</th>
+          <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">Person</th>
+          <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">Priority</th>
+          <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">Approval</th>
+        </tr></thead>
+        <tbody>${rowsHtml}</tbody>
+      </table>
+    </div>`;
+  });
+  return html;
+}
+
+// ── VIEW: By Person (original layout, preserved) ────────
+function renderActionsByPerson(){
+  let html = '';
   persons.forEach(p=>{
     if(!p.actions.length)return;
     const ini=p.name.slice(0,2).toUpperCase();
     const locked=actionLocked[p.id]||guruLock;
 
-    // Header row
     const headerHtml = locked
       ? `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
           <div style="width:30px;height:30px;border-radius:50%;background:${p.color};color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${ini}</div>
-          <span style="font-size:15px;font-weight:600;">
-            
-            ${p.name}
-          </span>
+          <span style="font-size:15px;font-weight:600;">${p.name}</span>
           <span style="font-size:11px;color:var(--muted);">${p.actions.length} ${p.actions.length!==1?'activities':'activity'}</span>
           ${locked&&!guruLock?`<span style="font-size:10px;font-weight:600;padding:2px 8px;border-radius:10px;background:var(--al);color:var(--accent);">✓ Submitted</span>`:''}
           <div style="margin-left:auto;display:flex;gap:6px;">
@@ -951,7 +1103,6 @@ function renderActionsPanel(){
       : `<div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap;">
           <div style="width:30px;height:30px;border-radius:50%;background:${p.color};color:#fff;font-size:11px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${ini}</div>
           <div>
-            
             <input value="${p.name}" onchange="setPersonName('${p.id}',this.value)" style="font-size:15px;font-weight:600;border:none;border-bottom:1.5px solid var(--accent);background:transparent;color:var(--text);outline:none;width:180px;padding:2px 4px;" placeholder="Enter person name"/>
           </div>
           <span style="font-size:11px;color:var(--muted);">${p.actions.length} ${p.actions.length!==1?'activities':'activity'}</span>
@@ -961,17 +1112,10 @@ function renderActionsPanel(){
           </div>
         </div>`;
 
-    // Split activities: frozen approved vs spontaneous (added post-lock)
-    // Exclude _calcOnly activities (added directly in calculator — not part of approval)
     const visibleActions = p.actions.filter(a => !a._calcOnly);
-    const frozenActions = guruLock
-      ? visibleActions.filter(a => !a._spontaneous)
-      : visibleActions;
-    const spontaneousActions = guruLock
-      ? visibleActions.filter(a => a._spontaneous)
-      : [];
+    const frozenActions = guruLock ? visibleActions.filter(a => !a._spontaneous) : visibleActions;
+    const spontaneousActions = guruLock ? visibleActions.filter(a => a._spontaneous) : [];
 
-    // Rows
     const rowsHtml = frozenActions.map((a,ai)=>{
       const key=p.id+'_'+a.id;
       const apv=approvals[key]||'pending';
@@ -982,14 +1126,11 @@ function renderActionsPanel(){
       const apvTxt=apv==='approved'?'✓ Approved':apv==='disapproved'?'✕ Disapproved':'⏳ Pending';
 
       if(locked){
-        // Locked view: show approval buttons — disapproved rows kept for audit trail
         const rowStyle = ai%2 ? 'background:var(--bg)' : '';
         const disapproved = apv === 'disapproved';
         return `<tr style="${rowStyle}${disapproved?';opacity:0.65':''}">
           <td style="padding:8px 12px;font-weight:500;font-size:12px;">
-            <span style="${disapproved?'text-decoration:line-through;color:var(--muted);':''}">
-              ${a.name}
-            </span>
+            <span style="${disapproved?'text-decoration:line-through;color:var(--muted);':''}">${a.name}</span>
             ${disapproved?'<span style="font-size:9px;margin-left:6px;color:var(--danger);font-weight:600;">excluded from calculator</span>':''}
           </td>
           <td style="padding:8px 12px;text-align:center;"><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:${pBg};color:${pCl};">${a.priority}</span></td>
@@ -1004,7 +1145,6 @@ function renderActionsPanel(){
           </td>
         </tr>`;
       } else {
-        // Edit view: editable name, radio priority, no approval
         return `<tr style="${ai%2?'background:var(--bg)':''}">
           <td style="padding:8px 12px;">
             <input value="${a.name}" onchange="setActionName('${p.id}','${a.id}',this.value)" style="font-size:12px;font-weight:500;border:none;border-bottom:1px solid var(--border);background:transparent;color:var(--text);outline:none;width:100%;min-width:120px;" placeholder="Activity name"/>
@@ -1028,7 +1168,6 @@ function renderActionsPanel(){
       }
     }).join('');
 
-    // Spontaneous activities section (post-lock additions)
     const spontaneousHtml = spontaneousActions.length ? buildSpontHtml(p.id, spontaneousActions) : '';
 
     html+=`<div style="margin-bottom:20px;background:var(--surf);border:1.5px solid ${locked?'var(--border)':'var(--accent)'};border-radius:var(--r);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);">
@@ -1047,14 +1186,17 @@ function renderActionsPanel(){
     </div>`;
   });
 
+  if(!html){
+    html = '<p style="text-align:center;color:var(--muted);padding:40px;font-size:13px;">No trip segments yet. Use the + Add Person button to get started.</p>';
+  }
+
   // Guru lock button at bottom
   if(!guruLock && persons.some(p=>actionLocked[p.id])){
     html+=`<div style="text-align:center;margin-top:16px;">
       <button onclick="guruLockAll()" style="padding:10px 28px;border-radius:20px;border:none;background:var(--text);color:#fff;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;">🔒 Lock All — Guru Approval</button>
     </div>`;
   }
-
-  el.innerHTML=html||'<p style="text-align:center;color:var(--muted);padding:40px;font-size:13px;">No trip segments yet. Use the + Add Trip Segment button to get started.</p>';
+  return html;
 }
 
 function addTripSegment(){
