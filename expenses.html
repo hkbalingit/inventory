@@ -964,9 +964,11 @@ function priBadge(priority){
   return `<span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:8px;background:${bg};color:${cl};">${priority}</span>`;
 }
 function apvButtons(pid, aid, apv){
-  return `<div style="display:flex;gap:6px;">
+  const hasVote = apv==='approved'||apv==='disapproved';
+  return `<div style="display:flex;gap:4px;align-items:center;">
     <button onclick="setApproval('${pid}','${aid}','approved')" style="padding:3px 9px;border-radius:6px;border:1.5px solid var(--accent);background:${apv==='approved'?'var(--accent)':'transparent'};color:${apv==='approved'?'#fff':'var(--accent)'};font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;cursor:pointer;">✓</button>
     <button onclick="setApproval('${pid}','${aid}','disapproved')" style="padding:3px 9px;border-radius:6px;border:1.5px solid var(--danger);background:${apv==='disapproved'?'var(--danger)':'transparent'};color:${apv==='disapproved'?'#fff':'var(--danger)'};font-family:'DM Sans',sans-serif;font-size:10px;font-weight:600;cursor:pointer;">✕</button>
+    ${hasVote ? `<button onclick="setApproval('${pid}','${aid}','pending')" title="Clear vote" style="padding:3px 7px;border-radius:6px;border:1.5px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:10px;cursor:pointer;line-height:1;">⟳</button>` : ''}
   </div>`;
 }
 
@@ -989,28 +991,39 @@ function renderActionsByTransaction(){
     const apv = approvals[key]||'pending';
     const locked = actionLocked[p.id]||guruLock;
     const disapproved = apv==='disapproved';
+    // Per-person columns: show dot for activity owner, blank for others
+    const personCells = persons.map(pp => {
+      if(pp.id === p.id){
+        return `<td style="padding:8px 12px;">${locked ? apvBadge(apv) : apvButtons(p.id, a.id, apv)}</td>`;
+      }
+      return `<td style="padding:8px 12px;"></td>`;
+    }).join('');
     return `<tr style="${i%2?'background:var(--bg)':''}${disapproved?';opacity:0.6':''}">
       <td style="padding:8px 12px;font-size:12px;font-weight:500;${disapproved?'text-decoration:line-through;color:var(--muted);':''}">${a.name}</td>
-      <td style="padding:8px 12px;">
-        <div style="display:flex;align-items:center;gap:6px;">
-          <div style="width:18px;height:18px;border-radius:50%;background:${p.color};color:#fff;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${p.name.slice(0,2).toUpperCase()}</div>
-          <span style="font-size:11px;">${p.name}</span>
-        </div>
-      </td>
+      <td style="padding:8px 12px;font-size:11px;color:var(--muted);">Activity</td>
       <td style="padding:8px 12px;font-size:11px;color:var(--muted);">${a.date||'—'}</td>
       <td style="padding:8px 12px;">${priBadge(a.priority)}</td>
-      <td style="padding:8px 12px;">${locked ? apvBadge(apv) : apvButtons(p.id, a.id, apv)}</td>
+      ${personCells}
     </tr>`;
   }).join('');
+
+  const personThs = persons.map(p =>
+    `<th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">
+      <div style="display:flex;align-items:center;gap:5px;">
+        <div style="width:10px;height:10px;border-radius:50%;background:${p.color};flex-shrink:0;"></div>
+        ${p.name}
+      </div>
+    </th>`
+  ).join('');
 
   return `<div style="background:var(--surf);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);">
     <table style="width:100%;border-collapse:collapse;font-size:12px;">
       <thead><tr style="background:var(--text);">
         <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">Activity</th>
-        <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">Person</th>
+        <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">Type</th>
         <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">Date</th>
         <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">Priority</th>
-        <th style="padding:9px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">Approval</th>
+        ${personThs}
       </tr></thead>
       <tbody>${rowsHtml}</tbody>
     </table>
@@ -1044,21 +1057,30 @@ function renderActionsByDate(){
   let html = '';
   order.forEach(date => {
     const items = groups[date];
+    const personThsDate = persons.map(pp =>
+      `<th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">
+        <div style="display:flex;align-items:center;gap:5px;">
+          <div style="width:10px;height:10px;border-radius:50%;background:${pp.color};flex-shrink:0;"></div>
+          ${pp.name}
+        </div>
+      </th>`
+    ).join('');
+
     const rowsHtml = items.map(({p,a},i) => {
       const key = p.id+'_'+a.id;
       const apv = approvals[key]||'pending';
       const locked = actionLocked[p.id]||guruLock;
       const disapproved = apv==='disapproved';
+      const personCells = persons.map(pp => {
+        if(pp.id === p.id){
+          return `<td style="padding:8px 12px;">${locked ? apvBadge(apv) : apvButtons(p.id, a.id, apv)}</td>`;
+        }
+        return `<td style="padding:8px 12px;"></td>`;
+      }).join('');
       return `<tr style="${i%2?'background:var(--bg)':''}${disapproved?';opacity:0.6':''}">
         <td style="padding:8px 12px;font-size:12px;font-weight:500;${disapproved?'text-decoration:line-through;color:var(--muted);':''}">${a.name}</td>
-        <td style="padding:8px 12px;">
-          <div style="display:flex;align-items:center;gap:6px;">
-            <div style="width:18px;height:18px;border-radius:50%;background:${p.color};color:#fff;font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${p.name.slice(0,2).toUpperCase()}</div>
-            <span style="font-size:11px;">${p.name}</span>
-          </div>
-        </td>
         <td style="padding:8px 12px;">${priBadge(a.priority)}</td>
-        <td style="padding:8px 12px;">${locked ? apvBadge(apv) : apvButtons(p.id, a.id, apv)}</td>
+        ${personCells}
       </tr>`;
     }).join('');
 
@@ -1070,9 +1092,8 @@ function renderActionsByDate(){
       <table style="width:100%;border-collapse:collapse;font-size:12px;">
         <thead><tr style="background:var(--text);">
           <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">Activity</th>
-          <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">Person</th>
           <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">Priority</th>
-          <th style="padding:8px 12px;text-align:left;font-size:11px;font-weight:500;color:#fff;">Approval</th>
+          ${personThsDate}
         </tr></thead>
         <tbody>${rowsHtml}</tbody>
       </table>
