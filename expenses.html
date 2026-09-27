@@ -18,25 +18,25 @@
 body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:20px 16px 80px;}
 
 /* HEADER */
-.header{max-width:960px;margin:0 auto 16px;display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;}
-.header h1{font-size:20px;font-weight:600;letter-spacing:-.3px;}
-.header .sub{font-size:12px;color:var(--muted);margin-top:2px;}
-.hright{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+.header{max-width:960px;margin:0 auto 8px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px;}
+.header h1{font-size:16px;font-weight:600;letter-spacing:-.3px;}
+.header .sub{font-size:10px;color:var(--muted);margin-top:1px;}
+.hright{display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
 
 /* TOTAL AMOUNT BOX */
-.total-box{max-width:960px;margin:0 auto 20px;background:var(--surf);border:1.5px solid var(--border);border-radius:var(--r);padding:16px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap;}
-.total-box label{font-size:12px;font-weight:500;color:var(--muted);white-space:nowrap;}
-.total-input{font-family:'DM Mono',monospace;font-size:22px;font-weight:500;border:none;background:transparent;color:var(--accent);width:160px;outline:none;}
+.total-box{max-width:960px;margin:0 auto 8px;background:var(--surf);border:1.5px solid var(--border);border-radius:8px;padding:6px 14px;display:flex;align-items:center;gap:12px;flex-wrap:wrap;}
+.total-box label{font-size:11px;font-weight:500;color:var(--muted);white-space:nowrap;}
+.total-input{font-family:'DM Mono',monospace;font-size:18px;font-weight:500;border:none;background:transparent;color:var(--accent);width:140px;outline:none;}
 .total-input:focus{border-bottom:2px solid var(--accent);}
-.total-divider{width:1px;height:40px;background:var(--border);}
+.total-divider{width:1px;height:28px;background:var(--border);}
 .total-stat{text-align:center;}
-.total-stat .val{font-family:'DM Mono',monospace;font-size:16px;font-weight:500;color:var(--text);}
-.total-stat .lbl{font-size:10px;color:var(--muted);margin-top:2px;}
+.total-stat .val{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--text);}
+.total-stat .lbl{font-size:9px;color:var(--muted);margin-top:1px;}
 
 /* LEGEND */
-.legend{max-width:960px;margin:0 auto 16px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
-.legend-title{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-right:4px;}
-.lchip{display:flex;align-items:center;gap:5px;padding:4px 10px;border-radius:20px;font-size:11px;font-weight:500;cursor:default;}
+.legend{max-width:960px;margin:0 auto 8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;}
+.legend-title{font-size:10px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-right:2px;}
+.lchip{display:flex;align-items:center;gap:4px;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:500;cursor:default;}
 .lchip.p3{background:var(--p3);color:var(--p3c);}
 .lchip.p2{background:var(--p2);color:var(--p2c);}
 .lchip.p1{background:var(--p1);color:var(--p1c);}
@@ -80,17 +80,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .del-btn{width:20px;height:20px;border-radius:4px;border:none;background:transparent;color:var(--muted);font-size:13px;cursor:pointer;display:flex;align-items:center;justify-content:center;opacity:.4;}
 .del-btn:hover{background:var(--dl);color:var(--danger);opacity:1;}
 
-/* SUMMARY FOOTER */
-.summary-footer{max-width:960px;margin:24px auto 0;background:var(--surf);border:1.5px solid var(--border);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);}
-.sf-title{background:var(--text);color:#fff;padding:10px 16px;font-size:12px;font-weight:500;}
-.sf-body{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:0;}
-.sf-person{padding:16px;border-right:1px solid var(--border);}
+/* SUMMARY FOOTER — compact inline pills */
+.summary-footer{max-width:960px;margin:0 auto 8px;background:var(--surf);border:1.5px solid var(--border);border-radius:8px;overflow:hidden;}
+.sf-title{background:var(--text);color:#fff;padding:4px 12px;font-size:10px;font-weight:500;}
+.sf-body{display:flex;flex-wrap:wrap;gap:0;}
+.sf-person{padding:6px 12px;border-right:1px solid var(--border);display:flex;align-items:center;gap:8px;min-width:0;}
 .sf-person:last-child{border-right:none;}
-.sf-pname{font-size:12px;font-weight:600;margin-bottom:4px;}
-.sf-pct{font-family:'DM Mono',monospace;font-size:24px;font-weight:500;color:var(--accent);}
-.sf-amount{font-family:'DM Mono',monospace;font-size:13px;color:var(--muted);margin-top:2px;}
-.sf-activities{font-size:10px;color:var(--muted);margin-top:4px;}
-.sf-bar{height:4px;background:var(--border);border-radius:2px;margin-top:8px;overflow:hidden;}
+.sf-pname{font-size:11px;font-weight:600;white-space:nowrap;}
+.sf-pct{font-family:'DM Mono',monospace;font-size:13px;font-weight:600;color:var(--accent);}
+.sf-amount{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted);}
+.sf-activities{font-size:9px;color:var(--muted);}
+.sf-bar{display:none;}
 .sf-barfill{height:100%;background:var(--accent);border-radius:2px;transition:width .4s;}
 
 /* ADD PERSON */
@@ -105,9 +105,44 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .pbar-seg.w2{background:var(--p2c);}
 .pbar-seg.w1{background:var(--p1c);}
 
+/* CALC VIEW TOGGLES */
+.view-toggles{max-width:960px;margin:0 auto 14px;display:flex;gap:6px;align-items:center;flex-wrap:wrap;}
+.view-lbl{font-size:11px;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;margin-right:4px;}
+.vtbtn{padding:5px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--surf);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;transition:all .15s;}
+.vtbtn:hover{border-color:var(--accent);color:var(--accent);}
+.vtbtn.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+
+/* FLAT ACTIVITY TABLE */
+.flat-table{width:100%;border-collapse:collapse;background:var(--surf);border-radius:var(--r);overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.06);}
+.flat-table th{background:var(--text);color:#fff;padding:9px 10px;text-align:left;font-size:11px;font-weight:500;white-space:nowrap;}
+.flat-table td{padding:7px 10px;border-bottom:1px solid var(--border);vertical-align:middle;font-size:12px;}
+.flat-table tr:last-child td{border-bottom:none;}
+.flat-table tr:hover td{background:var(--bg);}
+.flat-table .group-hdr td{background:var(--bg);font-size:11px;font-weight:700;color:var(--muted);padding:6px 10px;text-transform:uppercase;letter-spacing:.6px;border-bottom:2px solid var(--border);}
+
+/* TYPE BADGE */
+.type-special{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:#FDE8FF;color:#7B1FA2;}
+.type-regular{display:inline-flex;align-items:center;gap:4px;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:700;background:var(--p1);color:var(--p1c);}
+
+/* WEIGHT CELL BUTTONS */
+.wbtn{width:28px;height:28px;border-radius:6px;border:1.5px solid var(--border);background:var(--bg);font-size:11px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;color:var(--muted);}
+.wbtn:hover{border-color:var(--accent);color:var(--accent);}
+.wbtn.w-3{background:var(--p3);color:var(--p3c);border-color:var(--p3c);}
+.wbtn.w-2{background:var(--p2);color:var(--p2c);border-color:var(--p2c);}
+.wbtn.w-1{background:var(--p1);color:var(--p1c);border-color:var(--p1c);}
+.wbtn.w-0{background:var(--dl);color:var(--danger);border-color:var(--danger);}
+
+/* DATE / AMOUNT INPUTS IN TABLE */
+.date-in{font-family:'DM Mono',monospace;font-size:11px;border:none;border-bottom:1px solid var(--border);background:transparent;color:var(--text);outline:none;width:95px;padding:1px 3px;}
+.date-in:focus{border-bottom-color:var(--accent);}
+.amt-in{font-family:'DM Mono',monospace;font-size:12px;border:none;border-bottom:1px solid var(--border);background:transparent;color:var(--accent);outline:none;width:80px;padding:1px 3px;font-weight:600;}
+.amt-in:focus{border-bottom-color:var(--accent);}
+.act-name-in{font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;border:none;background:transparent;color:var(--text);outline:none;width:100%;min-width:110px;padding:2px 3px;border-radius:4px;}
+.act-name-in:focus{background:var(--bg);border-bottom:1px solid var(--accent);}
+
 /* TABS */
-.tabrow{max-width:960px;margin:0 auto 16px;display:flex;border-bottom:2px solid var(--border);}
-.tbtn{padding:8px 18px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;}
+.tabrow{max-width:960px;margin:0 auto 12px;display:flex;border-bottom:2px solid var(--border);}
+.tbtn{padding:5px 14px;border:none;background:none;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-2px;}
 .tbtn.active{color:var(--accent);border-bottom-color:var(--accent);font-weight:600;}
 
 /* HISTORY */
@@ -120,7 +155,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .no-hist{text-align:center;padding:40px;color:var(--muted);font-size:13px;}
 
 /* SNAPSHOT BTN */
-.snap-btn{padding:6px 16px;border-radius:20px;border:1.5px solid var(--accent);background:var(--al);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;}
+.snap-btn{padding:3px 10px;border-radius:20px;border:1.5px solid var(--accent);background:var(--al);color:var(--accent);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;}
 .snap-btn:hover{background:var(--accent);color:#fff;}
 
 @media(max-width:600px){
@@ -131,12 +166,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .sticky-top{
   position:sticky;top:0;z-index:50;
   background:var(--bg);
-  padding-bottom:4px;
+  padding-bottom:2px;
   border-bottom:1.5px solid transparent;
   transition:border-color .2s;
 }
 .sticky-top.collapsed{border-bottom-color:var(--border);}
-.sticky-top .header{margin-bottom:8px;}
+.sticky-top .header{margin-bottom:4px;}
 .collapse-toggle{
   padding:4px 12px;border-radius:20px;
   border:1.5px solid var(--border);background:var(--surf);
@@ -193,14 +228,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <!-- COMPACT BAR (shown when collapsed) -->
 <div id="compactBar" style="display:none;max-width:960px;margin:0 auto 6px;display:none;align-items:center;gap:12px;flex-wrap:wrap;padding:6px 0;">
   <span style="font-size:15px;font-weight:600;letter-spacing:-.2px;flex-shrink:0;">⚖️ <span id="cTitle">Expense Sharing</span></span>
-  <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
-    <span style="font-size:11px;color:var(--muted);">₱</span>
-    <input id="cAmount" type="number" min="0" value="1000" oninput="syncCompactToMain()" style="font-family:'DM Mono',monospace;font-size:14px;font-weight:600;color:var(--accent);border:none;border-bottom:1.5px solid var(--border);background:transparent;width:90px;outline:none;padding:1px 2px;"/>
-  </div>
-  <div style="display:flex;align-items:center;gap:4px;flex-shrink:0;">
-    <span style="font-size:11px;color:var(--muted);">Paid by:</span>
-    <input id="cPaidBy" placeholder="—" oninput="syncCompactToMain()" style="font-family:'DM Sans',monospace;font-size:12px;font-weight:500;border:none;border-bottom:1.5px solid var(--border);background:transparent;width:70px;outline:none;padding:1px 2px;color:var(--text);"/>
-  </div>
   <div id="cSummaryPills" style="display:flex;gap:5px;flex-wrap:wrap;flex:1;"></div>
   <div style="display:flex;gap:6px;align-items:center;flex-shrink:0;">
     <button class="collapse-toggle" id="stickyToggleBtn2" onclick="toggleStickyPanel()" style="font-size:11px;padding:3px 10px;">▼ Expand</button>
@@ -213,7 +240,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <div style="flex:1;">
     <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px;">
       <span style="font-size:20px;">⚖️</span>
-      <input id="tripTitle" value="Expense Sharing" placeholder="Enter trip / event title…" style="font-family:'DM Sans',sans-serif;font-size:20px;font-weight:600;letter-spacing:-.3px;border:none;background:transparent;color:var(--text);outline:none;width:100%;min-width:200px;" oninput="saveLocal();if(!stickyPanelOpen)updateCompactBar();"/>
+      <input id="tripTitle" value="Expense Sharing" placeholder="Enter trip / event title…" style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;letter-spacing:-.3px;border:none;background:transparent;color:var(--text);outline:none;width:100%;min-width:200px;" oninput="saveLocal();if(!stickyPanelOpen)updateCompactBar();"/>
     </div>
     <div class="sub">By percentage of activities · Priority-weighted</div>
   </div>
@@ -226,16 +253,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 </div>
 
 <div class="sticky-collapsible" id="stickyCollapsible">
-<!-- TOTAL AMOUNT -->
+<!-- TOTAL AMOUNT — hidden input kept for calculations, not shown -->
+<input type="hidden" id="totalAmt" value="1000"/>
+<input type="hidden" id="paidBy" value=""/>
+
+<!-- STATS BOX -->
 <div class="total-box">
-  <div>
-    <label>Total Expense (₱)</label>
-    <div style="display:flex;align-items:center;gap:4px;">
-      <span style="font-size:18px;color:var(--muted);font-weight:500;">₱</span>
-      <input class="total-input" id="totalAmt" type="number" min="0" value="1000" oninput="recalc()"/>
-    </div>
-  </div>
-  <div class="total-divider"></div>
   <div class="total-stat">
     <div class="val" id="statPersons">3</div>
     <div class="lbl">Persons</div>
@@ -243,7 +266,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <div class="total-divider"></div>
   <div class="total-stat">
     <div class="val" id="statActions">10</div>
-    <div class="lbl">Activities</div>
+    <div class="lbl">Transactions</div>
   </div>
   <div class="total-divider"></div>
   <div class="total-stat">
@@ -252,14 +275,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   </div>
   <div class="total-divider"></div>
   <div class="total-stat">
-    <div class="val" id="statCheck">₱1,000</div>
-    <div class="lbl">Allocated</div>
-  </div>
-  <div class="total-divider"></div>
-  <div>
-    <label style="font-size:12px;font-weight:500;color:var(--muted);display:block;margin-bottom:4px;">Paid by</label>
-    <input id="paidBy" placeholder="Who paid?" style="font-family:'DM Sans',sans-serif;font-size:14px;font-weight:500;border:none;border-bottom:1.5px solid var(--border);background:transparent;color:var(--text);outline:none;width:130px;padding-bottom:2px;" oninput="saveLocal();if(!stickyPanelOpen)updateCompactBar();"/>
-    <div style="font-size:10px;color:var(--muted);margin-top:3px;">Others pay this person</div>
+    <div class="val" id="statCheck">₱0</div>
+    <div class="lbl">Total Logged</div>
   </div>
 </div>
 
@@ -271,10 +288,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 <!-- LEGEND -->
 <div class="legend">
-  <span class="legend-title">Priority:</span>
-  <span class="lchip p3">● 3 — Critical, must be done</span>
-  <span class="lchip p2">● 2 — Important, can defer</span>
-  <span class="lchip p1">● 1 — Nice to have</span>
+  <span class="legend-title">Type:</span>
+  <span class="lchip p3">⚖️ Weighted — 3/2/1/0 per person</span>
+  <span class="lchip p1">= Even — ✓ included · ✗ excluded</span>
 </div>
 
 <!-- TABS -->
@@ -290,10 +306,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 
 <!-- CALCULATOR TAB -->
 <div id="calcPanel" style="display:none;">
-  <div class="sections" id="sections"></div>
-  <div class="add-person-row">
-    <button class="add-person-btn" onclick="addPerson()">+ Add Person</button>
+  <!-- View toggle row -->
+  <div class="view-toggles">
+    <span class="view-lbl">View by:</span>
+    <button class="vtbtn active" id="vt-activity" onclick="setCalcView('activity')">📋 Transaction</button>
+    <button class="vtbtn" id="vt-date"     onclick="setCalcView('date')">📅 Date</button>
+    <button class="vtbtn" id="vt-person"   onclick="setCalcView('person')">👤 Person</button>
+    <div style="flex:1;"></div>
+    <button style="padding:5px 14px;border-radius:20px;border:1.5px dashed var(--border);background:transparent;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:500;color:var(--muted);cursor:pointer;" onclick="addFlatActivity()">+ Add Transaction</button>
+    <button class="add-person-btn" onclick="addPerson()" style="margin:0;">+ Add Person</button>
   </div>
+  <div id="sections" style="max-width:960px;margin:0 auto;"></div>
 </div>
 
 <!-- TRIP SEGMENTS TAB -->
@@ -624,40 +647,31 @@ let editingPaymentId = null;
 let stickyPanelOpen = true;
 
 function updateCompactBar(){
-  // Sync title
   const title = document.getElementById('tripTitle');
   const cTitle = document.getElementById('cTitle');
   if(title&&cTitle) cTitle.textContent = title.value||'Expense Sharing';
-  // Sync amount
-  const amt = document.getElementById('totalAmt');
+  // Total logged from transactions
+  const totalLogged = persons.reduce((s,p)=>s+p.actions.reduce((ss,a)=>ss+(parseFloat(a.amount)||0),0),0);
   const cAmt = document.getElementById('cAmount');
-  if(amt&&cAmt) cAmt.value = amt.value;
-  // Sync paid by
-  const pb = document.getElementById('paidBy');
-  const cpb = document.getElementById('cPaidBy');
-  if(pb&&cpb) cpb.value = pb.value;
-  // Render person summary pills
-  const tw = totalWeight();
-  const total = parseFloat(document.getElementById('totalAmt').value)||0;
+  if(cAmt) cAmt.value = totalLogged;
   const pills = document.getElementById('cSummaryPills');
   if(pills){
     pills.innerHTML = persons.map(p=>{
-      const pw = p.actions.reduce((s,a)=>s+a.priority,0);
+      const pw = personWeight(p);
+      const tw = totalWeight();
       const pct = tw>0?pw/tw:0;
-      const amt2 = total*pct;
-      return `<span style="font-size:10px;font-weight:600;padding:2px 9px;border-radius:10px;background:var(--al);color:var(--accent);">${p.name}: ${(pct*100).toFixed(1)}% · ₱${amt2.toFixed(2)}</span>`;
+      return `<span style="font-size:10px;font-weight:600;padding:2px 9px;border-radius:10px;background:var(--al);color:var(--accent);">${p.name}: ${(pct*100).toFixed(1)}%</span>`;
     }).join('');
   }
 }
 
 function syncCompactToMain(){
-  // Sync compact inputs back to main
-  const cAmt = document.getElementById('cAmount');
-  const cPb  = document.getElementById('cPaidBy');
-  const amt  = document.getElementById('totalAmt');
-  const pb   = document.getElementById('paidBy');
-  if(cAmt&&amt){ amt.value=cAmt.value; recalc(); }
-  if(cPb&&pb)  { pb.value=cPb.value; saveLocal(); }
+  // Compact bar no longer syncs amount/paidBy (removed from main header)
+  saveLocal();
+}
+function totalAmt(){
+  // Sum actual logged amounts across all transactions
+  return persons.reduce((s,p)=>s+p.actions.reduce((ss,a)=>ss+(parseFloat(a.amount)||0),0),0);
 }
 
 function toggleStickyPanel(){
@@ -1462,6 +1476,12 @@ function totalWeight(){
   const anyInCalc = persons.some(p=>p.actions.some(a=>a._inCalc));
   return persons.reduce((s,p)=>s+p.actions.reduce((a,ac)=>{
     if(anyInCalc && !ac._inCalc) return a;
+    // If per-person weights exist, sum all person weights on this activity
+    if(ac.weights && Object.keys(ac.weights).length){
+      let wsum = 0;
+      persons.forEach(pp=>{ wsum += (ac.weights[pp.id]!==undefined ? ac.weights[pp.id] : 0); });
+      return a + wsum;
+    }
     return a+ac.priority;
   },0),0);
 }
@@ -1469,22 +1489,25 @@ function personWeight(p){
   const anyInCalc = persons.some(pp=>pp.actions.some(a=>a._inCalc));
   return p.actions.reduce((s,a)=>{
     if(anyInCalc && !a._inCalc) return s;
+    // Use per-person weight for this person if set
+    if(a.weights && a.weights[p.id]!==undefined) return s + a.weights[p.id];
     return s+a.priority;
   },0);
 }
 function totalAmt(){ return parseFloat(document.getElementById('totalAmt').value)||0; }
 
 function recalc(){
-  const total = totalAmt();
   const tw = totalWeight();
   const anyInCalcStat = persons.some(p=>p.actions.some(a=>a._inCalc));
   const allActivities = anyInCalcStat
     ? persons.reduce((s,p)=>s+p.actions.filter(a=>a._inCalc).length,0)
     : persons.reduce((s,p)=>s+p.actions.length,0);
+  // Sum all logged amounts across transactions
+  const totalLogged = persons.reduce((s,p)=>s+p.actions.reduce((ss,a)=>ss+(parseFloat(a.amount)||0),0),0);
   document.getElementById('statPersons').textContent = persons.length;
   document.getElementById('statActions').textContent = allActivities;
   document.getElementById('statWeight').textContent = tw;
-  document.getElementById('statCheck').textContent = '₱'+total.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
+  document.getElementById('statCheck').textContent = fmt(totalLogged);
   renderSections();
   renderSummary();
   if(!stickyPanelOpen) updateCompactBar();
@@ -1494,78 +1517,312 @@ function recalc(){
 function fmt(n){ return '₱'+n.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2}); }
 function fmtPct(n){ return (n*100).toFixed(2)+'%'; }
 
+// ── CALC VIEW STATE ───────────────────────────────
+let calcView = 'activity'; // 'activity' | 'date' | 'person'
+
+function setCalcView(v){
+  calcView = v;
+  ['activity','date','person'].forEach(k=>{
+    const btn = document.getElementById('vt-'+k);
+    if(btn) btn.classList.toggle('active', k===v);
+  });
+  renderSections();
+}
+
+// ── FLAT ACTIVITY LIST HELPERS ─────────────────────
+// Collect all activities across all persons as flat list
+function getFlatActivities(){
+  const anyInCalc = persons.some(p=>p.actions.some(a=>a._inCalc));
+  const rows = [];
+  persons.forEach(p=>{
+    const acts = anyInCalc ? p.actions.filter(a=>a._inCalc) : p.actions;
+    acts.forEach(a=>{
+      rows.push({pid:p.id, pname:p.name, pcolor:p.color, a});
+    });
+  });
+  return rows;
+}
+
+// Build per-person weight cell for an activity (each person can have 3/2/1/0)
+function weightCell(pid, aid, isLocked){
+  const p = persons.find(x=>x.id===pid);
+  const a = p&&p.actions.find(x=>x.id===aid);
+  if(!a) return '';
+  if(isLocked){
+    const bg=a.priority===3?'var(--p3)':a.priority===2?'var(--p2)':a.priority===1?'var(--p1)':'var(--dl)';
+    const cl=a.priority===3?'var(--p3c)':a.priority===2?'var(--p2c)':a.priority===1?'var(--p1c)':'var(--danger)';
+    return `<span style="font-size:10px;font-weight:700;padding:3px 9px;border-radius:6px;background:${bg};color:${cl};">${a.priority}</span>`;
+  }
+  return [3,2,1,0].map(v=>`<button class="wbtn${a.priority===v?' w-'+v:''}" onclick="setPriority('${pid}','${aid}',${v})">${v}</button>`).join('');
+}
+
+// Type badge helper
+function typeBadge(type){
+  return (type==='weighted'||type==='special')
+    ? '<span class="type-special">⚖️ Weighted</span>'
+    : '<span class="type-regular">= Even</span>';
+}
+
+// Build person-column headers (used in legacy path)
+function personColHeaders(){
+  return persons.map(p=>`<th style="text-align:center;min-width:120px;">
+    <div style="display:flex;align-items:center;gap:5px;justify-content:center;">
+      <div style="width:18px;height:18px;border-radius:50%;background:${p.color};flex-shrink:0;"></div>
+      <input value="${p.name}" onchange="setPersonName('${p.id}',this.value)" style="font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;border:none;border-bottom:1px solid rgba(255,255,255,.3);background:transparent;color:#fff;outline:none;width:70px;text-align:center;"/>
+      <button onclick="delPerson('${p.id}')" style="width:14px;height:14px;border-radius:3px;border:none;background:transparent;color:rgba(255,255,255,.5);font-size:10px;cursor:pointer;flex-shrink:0;padding:0;">✕</button>
+    </div>
+    <div style="font-size:9px;opacity:.7;margin-top:2px;">3 / 2 / 1 / 0</div>
+  </th>`).join('');
+}
+
+// Build person-column weight cells for a given activity
+function personWeightCells(a, pid_owner){
+  return persons.map(p=>{
+    if(!a.weights) a.weights = {};
+    const w = (a.weights[p.id]!==undefined) ? a.weights[p.id] : (p.id===pid_owner ? a.priority : 0);
+    const isLocked = lockedActivities.has(a.id);
+    if(isLocked){
+      const bg=w===3?'var(--p3)':w===2?'var(--p2)':w===1?'var(--p1)':'var(--dl)';
+      const cl=w===3?'var(--p3c)':w===2?'var(--p2c)':w===1?'var(--p1c)':'var(--danger)';
+      return `<td style="text-align:center;"><span style="font-size:10px;font-weight:700;padding:2px 8px;border-radius:6px;background:${bg};color:${cl};">${w}</span></td>`;
+    }
+    const btns = [3,2,1,0].map(v=>`<button class="wbtn${w===v?' w-'+v:''}" onclick="setPersonWeight('${pid_owner}','${a.id}','${p.id}',${v})">${v}</button>`).join('');
+    return `<td style="text-align:center;"><div style="display:flex;gap:2px;justify-content:center;">${btns}</div></td>`;
+  }).join('');
+}
+
 // ── RENDER SECTIONS ──────────────────────────────
 function renderSections(){
-  // Only show activities marked for calculator (_inCalc), or all if none are tagged
   const anyInCalc = persons.some(p=>p.actions.some(a=>a._inCalc));
-
   const tw = totalWeight();
   const total = totalAmt();
   const el = document.getElementById('sections');
-  el.innerHTML = persons.map((p,pi)=>{
-    const pw = personWeight(p);
-    const pPct = tw>0 ? pw/tw : 0;
-    const pAmt = total * pPct;
-    const ini = p.name.slice(0,2).toUpperCase();
-    const actionsToShow = anyInCalc ? p.actions.filter(a=>a._inCalc) : p.actions;
-    const rows = actionsToShow.map((a,ai)=>{
-      const aPct = tw>0 ? a.priority/tw : 0;
-      const aAmt = total * aPct;
-      const pBg = a.priority===3?'var(--p3)':a.priority===2?'var(--p2)':'var(--p1)';
-      const pCl = a.priority===3?'var(--p3c)':a.priority===2?'var(--p2c)':'var(--p1c)';
+  const flatRows = getFlatActivities();
+
+  // ── Paid-by dropdown options ───────────────────
+  function paidByOptions(currentVal){
+    const opts = persons.map(p=>`<option value="${p.name}" ${(currentVal||'')==p.name?'selected':''}>${p.name}</option>`).join('');
+    return `<option value="" ${!currentVal?'selected':''}>— Who paid?</option>${opts}`;
+  }
+
+  // ── Per-person combined cell: WEIGHTED=3/2/1/0, EVEN=checkmark ──
+  function personCombinedCells(a, pid_owner, atype){
+    if(!a.weights) a.weights = {};
+    const actAmt = parseFloat(a.amount)||0;
+    // Compute splits
+    let splitMap = {};
+    if(atype==='weighted'){
+      let actW = 0;
+      persons.forEach(p=>{ actW += (a.weights[p.id]!==undefined ? a.weights[p.id] : (p.id===pid_owner?a.priority:0)); });
+      persons.forEach(p=>{
+        const pw = a.weights[p.id]!==undefined ? a.weights[p.id] : (p.id===pid_owner?a.priority:0);
+        splitMap[p.id] = actW>0 ? actAmt*(pw/actW) : 0;
+      });
+    } else {
+      const checked = persons.filter(p=> a.weights[p.id]!==0 );
+      const share = checked.length>0 ? actAmt/checked.length : 0;
+      persons.forEach(p=>{ splitMap[p.id] = a.weights[p.id]!==0 ? share : 0; });
+    }
+
+    return persons.map(p=>{
       const isLocked = lockedActivities.has(a.id);
-      const calcPBg = a.priority===3?'var(--p3)':a.priority===2?'var(--p2)':'var(--p1)';
-      const calcPCl = a.priority===3?'var(--p3c)':a.priority===2?'var(--p2c)':'var(--p1c)';
-      const btns = isLocked
-        ? '<div style="display:flex;align-items:center;gap:5px;">'
-          + '<span style="font-size:10px;font-weight:700;padding:3px 10px;border-radius:6px;background:'+calcPBg+';color:'+calcPCl+';">'+a.priority+'</span>'
-          + '<span style="font-size:9px;color:var(--muted);font-style:italic;">🔒 Approved</span>'
-          + '</div>'
-        : [3,2,1].map(v=>'<button class="pbtn'+(a.priority===v?' active-'+v:'')+'" onclick="setPriority(\'' +p.id+ '\',\''+a.id+'\','+v+')">'+v+'</button>').join('');
-      return `<tr>
-        <td><input class="aname" value="${a.name}" placeholder="Activity name…" onchange="setName('${p.id}','${a.id}',this.value)"/></td>
-        <td><div class="psel">${btns}</div></td>
-        <td><span class="pct-badge" style="background:${pBg};color:${pCl};">${fmtPct(aPct)}</span></td>
-        <td><span class="share-val">${fmt(aAmt)}</span></td>
-        <td style="white-space:nowrap;">
-          <button class="del-btn" onclick="dupAction('${p.id}','${a.id}')" title="Duplicate" style="opacity:.5;font-size:12px;margin-right:2px;">⧉</button>
-          <button class="del-btn" onclick="delAction('${p.id}','${a.id}')" title="Remove">✕</button>
+      const split = splitMap[p.id]||0;
+      const splitStr = actAmt>0 ? `<div style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);margin-top:2px;">${fmt(split)}</div>` : '';
+
+      if(atype==='weighted'){
+        const w = (a.weights[p.id]!==undefined) ? a.weights[p.id] : (p.id===pid_owner ? a.priority : 0);
+        if(isLocked){
+          const bg=w===3?'var(--p3)':w===2?'var(--p2)':w===1?'var(--p1)':'var(--dl)';
+          const cl=w===3?'var(--p3c)':w===2?'var(--p2c)':w===1?'var(--p1c)':'var(--danger)';
+          return `<td style="text-align:center;padding:6px 4px;"><span style="font-size:10px;font-weight:700;padding:2px 7px;border-radius:6px;background:${bg};color:${cl};">${w}</span>${splitStr}</td>`;
+        }
+        const btns = [3,2,1,0].map(v=>`<button class="wbtn${w===v?' w-'+v:''}" onclick="setPersonWeight('${pid_owner}','${a.id}','${p.id}',${v})">${v}</button>`).join('');
+        return `<td style="text-align:center;padding:6px 4px;"><div style="display:flex;gap:1px;justify-content:center;">${btns}</div>${splitStr}</td>`;
+      } else {
+        const isIn = a.weights[p.id]!==0;
+        if(isLocked){
+          return `<td style="text-align:center;padding:6px 4px;font-size:15px;">${isIn?'<span style="color:var(--accent);">✓</span>':'<span style="color:var(--muted);">✗</span>'}${splitStr}</td>`;
+        }
+        return `<td style="text-align:center;padding:6px 4px;">
+          <button onclick="togglePersonCheck('${pid_owner}','${a.id}','${p.id}')"
+            style="width:30px;height:30px;border-radius:8px;border:1.5px solid ${isIn?'var(--accent)':'var(--border)'};
+            background:${isIn?'var(--al)':'var(--bg)'};color:${isIn?'var(--accent)':'var(--muted)'};
+            font-size:14px;font-weight:700;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;transition:all .15s;"
+          >${isIn?'✓':'✗'}</button>
+          ${splitStr}
+        </td>`;
+      }
+    }).join('');
+  }
+
+  // ── Person column headers ──────────────────────
+  function personColHeaders(){
+    return persons.map(p=>`<th style="text-align:center;min-width:80px;padding:8px 4px;">
+      <div style="display:flex;align-items:center;gap:4px;justify-content:center;">
+        <div style="width:12px;height:12px;border-radius:50%;background:${p.color};flex-shrink:0;"></div>
+        <span style="font-size:11px;">${p.name}</span>
+      </div>
+    </th>`).join('');
+  }
+
+  // ── SHARED FLAT TABLE builder ─────────────────
+  function buildFlatTable(rows, groupLabel){
+    const thead = `<thead><tr>
+      <th style="min-width:220px;padding-left:14px;">Transaction</th>
+      <th style="width:75px;">Type</th>
+      <th style="width:95px;">Paid by</th>
+      <th style="width:70px;">Currency</th>
+      <th style="width:105px;">Amount</th>
+      ${personColHeaders()}
+      <th style="width:40px;"></th>
+    </tr></thead>`;
+
+    const CURRENCIES = ['JPY','PHP','USD','EUR','SGD','KRW','TWD','HKD','AUD','GBP'];
+
+    const tbody = rows.map((row,ri)=>{
+      const {pid, pname, pcolor, a} = row;
+      if(!a.weights) a.weights = {};
+      const isLocked = lockedActivities.has(a.id);
+      // Migrate old type values
+      const atype = (a.type==='special'||a.type==='weighted') ? 'weighted' : 'even';
+      const paidBy = a.paidBy||'';
+      const currency = a.currency||'JPY';
+
+      // ── Date: free-text input (YYYY-MM-DD) with a small today-button ──
+      const dateInput = `<div style="display:flex;gap:3px;align-items:center;">
+        <input type="text" value="${a.date||''}" placeholder="YYYY-MM-DD"
+          onchange="setActivityField('${pid}','${a.id}','date',this.value)"
+          style="font-family:'DM Mono',monospace;font-size:11px;padding:3px 5px;border-radius:6px;
+          border:1px solid var(--border);background:#fff;color:var(--text);width:100px;outline:none;"
+          title="Enter date as YYYY-MM-DD"/>
+        <button onclick="setActivityField('${pid}','${a.id}','date',todayISO());renderSections();"
+          title="Set to today"
+          style="width:22px;height:22px;border-radius:5px;border:1px solid var(--border);background:#fff;
+          color:var(--muted);font-size:11px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">📅</button>
+      </div>`;
+
+      // Row tint
+      const rowBg = atype==='weighted' ? 'background:#FDF5FF' : (ri%2?'background:rgba(0,0,0,.012)':'');
+
+      // Type select — explicit white bg on options for readability
+      const typeSelect = isLocked
+        ? (atype==='weighted'
+            ? '<span class="type-special">⚖️ Weighted</span>'
+            : '<span class="type-regular">= Even</span>')
+        : `<select onchange="setActivityField('${pid}','${a.id}','type',this.value)"
+            style="font-family:'DM Sans',sans-serif;font-size:10px;padding:3px 5px;border-radius:8px;
+            border:1.5px solid ${atype==='weighted'?'#CE93D8':'var(--border)'};
+            background:${atype==='weighted'?'#FDE8FF':'#fff'};
+            color:${atype==='weighted'?'#7B1FA2':'#555'};cursor:pointer;font-weight:600;width:100%;">
+            <option value="even"     ${atype==='even'    ?'selected':''} style="background:#fff;color:#1C1C1A;font-weight:400;">= Even</option>
+            <option value="weighted" ${atype==='weighted'?'selected':''} style="background:#fff;color:#1C1C1A;font-weight:400;">⚖️ Weighted</option>
+          </select>
+          <div style="margin-top:3px;font-size:9px;color:var(--muted);">${atype==='weighted'?'3/2/1/0 split':'✓/✗ equal split'}</div>`;
+
+      // Paid-by select — explicit white bg
+      const personOptList = persons.map(p=>
+        `<option value="${p.name}" ${paidBy===p.name?'selected':''} style="background:#fff;color:#1C1C1A;font-weight:400;">${p.name}</option>`
+      ).join('');
+      const paidBySelect = `<select onchange="setActivityField('${pid}','${a.id}','paidBy',this.value)"
+          style="font-family:'DM Sans',sans-serif;font-size:10px;padding:3px 5px;border-radius:8px;
+          border:1.5px solid ${paidBy?'var(--accent)':'var(--border)'};
+          background:${paidBy?'var(--al)':'#fff'};
+          color:${paidBy?'var(--accent)':'#555'};cursor:pointer;width:100%;font-weight:${paidBy?'600':'400'};">
+          <option value="" ${!paidBy?'selected':''} style="background:#fff;color:#8A8880;font-weight:400;">— who?</option>
+          ${personOptList}
+        </select>`;
+
+      // Currency select — explicit white bg
+      const currOpts = CURRENCIES.map(c=>
+        `<option value="${c}" ${currency===c?'selected':''} style="background:#fff;color:#1C1C1A;font-weight:400;">${c}</option>`
+      ).join('');
+      const currencySelect = `<select onchange="setActivityField('${pid}','${a.id}','currency',this.value)"
+          style="font-family:'DM Mono',monospace;font-size:10px;padding:3px 5px;border-radius:8px;
+          border:1.5px solid var(--border);background:#fff;color:var(--text);cursor:pointer;width:100%;font-weight:500;">
+          ${currOpts}
+        </select>`;
+
+      return `<tr style="${rowBg}">
+        <td style="padding:8px 10px 8px 14px;">
+          ${dateInput}
+          <div style="margin-top:5px;">
+            <input class="act-name-in" value="${a.name}" placeholder="Transaction name…" onchange="setName('${pid}','${a.id}',this.value)" style="width:100%;font-size:12px;font-weight:600;"/>
+            <div style="font-size:9px;color:var(--muted);margin-top:2px;">entered by ${pname}</div>
+          </div>
+        </td>
+        <td style="padding:6px 8px;vertical-align:top;">${typeSelect}</td>
+        <td style="padding:6px 8px;vertical-align:top;">${paidBySelect}</td>
+        <td style="padding:6px 8px;vertical-align:top;">${currencySelect}</td>
+        <td style="padding:6px 8px;vertical-align:top;">
+          <input class="amt-in" type="number" min="0" step="0.01" value="${a.amount||''}" placeholder="0.00"
+            onchange="setActivityField('${pid}','${a.id}','amount',this.value)" style="width:95px;"/>
+        </td>
+        ${personCombinedCells(a, pid, atype)}
+        <td style="text-align:center;padding:6px 4px;vertical-align:top;">
+          ${!isLocked
+            ?`<button class="del-btn" onclick="delAction('${pid}','${a.id}')" title="Remove">✕</button>`
+            :'<span style="font-size:9px;color:var(--muted);">🔒</span>'}
         </td>
       </tr>`;
     }).join('');
-    return `<div class="person-block">
-      <div class="person-header">
-        <div class="person-avatar" style="background:${p.color};">${ini}</div>
-        <div style="flex:1;">
-          <input style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;border:none;background:transparent;color:var(--text);width:160px;outline:none;padding:2px 4px;border-radius:4px;" value="${p.name}" onchange="setPersonName('${p.id}',this.value)" onclick="this.select()"/>
-        </div>
-        <div class="person-summary">
-          <div>
-            <div class="psumval">${fmtPct(pPct)}</div>
-            <div class="psumlbl">share</div>
-          </div>
-          <div>
-            <div class="psumval">${fmt(pAmt)}</div>
-            <div class="psumlbl">amount</div>
-          </div>
-        </div>
-        <button class="add-action-btn" onclick="addAction('${p.id}')">+ Add Activity</button>
-        <button class="del-btn" onclick="delPerson('${p.id}')" title="Remove person" style="opacity:.3;font-size:15px;">✕</button>
-      </div>
-      <table class="action-table">
-        <thead><tr>
-          <th style="width:40%;">Activity</th>
-          <th style="width:20%;">Priority</th>
-          <th style="width:15%;">% Share</th>
-          <th style="width:20%;">Amount (₱)</th>
-          <th style="width:10%;"></th>
-        </tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-      </div><!-- end snap-body -->
+
+    return `<div style="margin-bottom:20px;overflow-x:auto;">
+      ${groupLabel?`<div style="font-size:11px;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:.8px;padding:6px 0 6px 2px;">${groupLabel}</div>`:''}
+      <table class="flat-table">${thead}<tbody>${tbody}</tbody></table>
     </div>`;
-  }).join('');
+  }
+
+  // ── VIEW: BY TRANSACTION (default, sorted by date) ──
+  if(calcView==='activity'){
+    const sorted = [...flatRows].sort((a,b)=>(a.a.date||'zzzz').localeCompare(b.a.date||'zzzz'));
+    el.innerHTML = buildFlatTable(sorted, '');
+    return;
+  }
+
+  // ── VIEW: BY DATE ──────────────────────────────
+  if(calcView==='date'){
+    const groups = {};
+    flatRows.forEach(row=>{
+      const d = row.a.date || '(no date)';
+      if(!groups[d]) groups[d] = [];
+      groups[d].push(row);
+    });
+    const keys = Object.keys(groups).sort((a,b)=>{
+      if(a==='(no date)') return 1;
+      if(b==='(no date)') return -1;
+      return a.localeCompare(b);
+    });
+    el.innerHTML = keys.map(d=>{
+      const label = d==='(no date)' ? '📅 No Date' : '📅 '+new Date(d+'T00:00:00').toLocaleDateString('en-PH',{weekday:'short',month:'short',day:'numeric',year:'numeric'});
+      return buildFlatTable(groups[d], label);
+    }).join('');
+    return;
+  }
+
+  // ── VIEW: BY PERSON ─────────────────────────────
+  if(calcView==='person'){
+    el.innerHTML = persons.map(p=>{
+      const rows = flatRows.filter(r=>r.pid===p.id);
+      const ini = p.name.slice(0,2).toUpperCase();
+      const pw = personWeight(p);
+      const pPct = tw>0?pw/tw:0;
+      const pAmt = total*pPct;
+      const header = `<div style="display:flex;align-items:center;gap:10px;margin-bottom:10px;flex-wrap:wrap;">
+        <div class="person-avatar" style="background:${p.color};">${ini}</div>
+        <input style="font-family:'DM Sans',sans-serif;font-size:15px;font-weight:600;border:none;border-bottom:1.5px solid var(--accent);background:transparent;color:var(--text);outline:none;width:180px;padding:2px 4px;" value="${p.name}" onchange="setPersonName('${p.id}',this.value)"/>
+        <div class="person-summary">
+          <div><div class="psumval">${fmtPct(pPct)}</div><div class="psumlbl">share</div></div>
+          <div><div class="psumval">${fmt(pAmt)}</div><div class="psumlbl">amount</div></div>
+        </div>
+        <button class="add-action-btn" onclick="addActionForPerson('${p.id}')">+ Add Transaction</button>
+        <button class="del-btn" onclick="delPerson('${p.id}')" title="Remove person" style="opacity:.3;font-size:15px;">✕</button>
+      </div>`;
+      return `<div style="margin-bottom:24px;">${header}${buildFlatTable(rows,'')}</div>`;
+    }).join('');
+    return;
+  }
 }
+
 
 // ── RENDER SUMMARY ────────────────────────────────
 function renderSummary(){
@@ -1578,14 +1835,10 @@ function renderSummary(){
     const pAmt = total * pPct;
     const ini = p.name.slice(0,2).toUpperCase();
     return `<div class="sf-person">
-      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px;">
-        <div class="person-avatar" style="width:26px;height:26px;font-size:10px;background:${p.color};">${ini}</div>
-        <span class="sf-pname">${p.name}</span>
-      </div>
-      <div class="sf-pct">${(pPct*100).toFixed(1)}%</div>
-      <div class="sf-amount">${fmt(pAmt)}</div>
-      <div class="sf-activities">${p.actions.length} ${p.actions.length!==1?'activities':'activity'} · weight: ${pw}/${tw}</div>
-      <div class="sf-bar"><div class="sf-barfill" style="width:${(pPct*100).toFixed(1)}%;background:${p.color};"></div></div>
+      <div class="person-avatar" style="width:20px;height:20px;font-size:8px;background:${p.color};flex-shrink:0;">${ini}</div>
+      <span class="sf-pname">${p.name}</span>
+      <span class="sf-pct">${(pPct*100).toFixed(1)}%</span>
+      <span class="sf-amount">${fmt(pAmt)}</span>
     </div>`;
   }).join('');
 }
@@ -1710,6 +1963,77 @@ function setName(pid, aid, val){
   const a = p.actions.find(x=>x.id===aid);
   a.name = val.trim()||'Untitled';
   saveLocal();
+}
+function setActivityField(pid, aid, field, val){
+  const p = persons.find(x=>x.id===pid);
+  if(!p) return;
+  const a = p.actions.find(x=>x.id===aid);
+  if(!a) return;
+  if(field==='amount') a[field] = parseFloat(val)||0;
+  else a[field] = val;
+  saveLocal();
+  if(field==='type' || field==='date') renderSections();
+  if(field==='amount') recalc();
+}
+function setDatePart(pid, aid, part, val){
+  const p = persons.find(x=>x.id===pid);
+  if(!p) return;
+  const a = p.actions.find(x=>x.id===aid);
+  if(!a) return;
+  const parts = (a.date||'--').split('-');
+  let y = parts[0]||'', m = parts[1]||'', d = parts[2]||'';
+  if(part==='y') y = val;
+  if(part==='m') m = val;
+  if(part==='d') d = val;
+  a.date = (y&&m&&d) ? `${y}-${m}-${d}` : [y,m,d].filter(Boolean).join('-');
+  saveLocal();
+  renderSections();
+}
+function setPersonWeight(pid_owner, aid, pid_target, val){
+  const p = persons.find(x=>x.id===pid_owner);
+  if(!p) return;
+  const a = p.actions.find(x=>x.id===aid);
+  if(!a) return;
+  if(!a.weights) a.weights = {};
+  a.weights[pid_target] = parseInt(val);
+  if(pid_target === pid_owner) a.priority = parseInt(val);
+  recalc();
+}
+function togglePersonCheck(pid_owner, aid, pid_target){
+  const p = persons.find(x=>x.id===pid_owner);
+  if(!p) return;
+  const a = p.actions.find(x=>x.id===aid);
+  if(!a) return;
+  if(!a.weights) a.weights = {};
+  // Default unchecked state is 1 (included); toggle to 0 (excluded) and back
+  const current = a.weights[pid_target]!==undefined ? a.weights[pid_target] : 1;
+  a.weights[pid_target] = current===0 ? 1 : 0;
+  recalc();
+}
+function todayISO(){
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const dd = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${dd}`;
+}
+function addFlatActivity(){
+  if(!persons.length){ alert('Add a person first.'); return; }
+  const p = persons[0];
+  const hasInCalc = p.actions.some(a=>a._inCalc);
+  const newAct = {id:'a'+actionCounter++, name:'New transaction', priority:2, date:todayISO(), amount:0, type:'even', currency:'JPY', weights:{}};
+  if(hasInCalc){ newAct._inCalc=true; newAct._calcOnly=true; }
+  p.actions.push(newAct); // push = end of list
+  recalc();
+}
+function addActionForPerson(pid){
+  const p = persons.find(x=>x.id===pid);
+  if(!p) return;
+  const hasInCalc = p.actions.some(a=>a._inCalc);
+  const newAct = {id:'a'+actionCounter++, name:'New transaction', priority:2, date:todayISO(), amount:0, type:'even', currency:'JPY', weights:{}};
+  if(hasInCalc){ newAct._inCalc=true; newAct._calcOnly=true; }
+  p.actions.push(newAct); // push = end of list
+  recalc();
 }
 function setPersonName(pid, val){
   const p = persons.find(x=>x.id===pid);
