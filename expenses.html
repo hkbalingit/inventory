@@ -217,7 +217,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <div class="evt-modal-body" id="evtList"></div>
     <div class="evt-actions">
       <button onclick="newEvent()" style="padding:7px 16px;border-radius:20px;border:none;background:var(--accent);color:#fff;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">+ New Event</button>
-      <button onclick="exportEvent()" style="padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;">⬇ Export</button>
+      <button onclick="exportEvent()" style="padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;">⬇ Export JSON</button>
+      <button onclick="exportCSV()" style="padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;">📊 Download CSV</button>
+      <button onclick="exportToSheets()" style="padding:7px 14px;border-radius:20px;border:1.5px solid #0F9D58;background:#E8F5E9;color:#0F9D58;font-family:'DM Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer;">🟢 Open in Google Sheets</button>
       <label style="padding:7px 14px;border-radius:20px;border:1.5px solid var(--border);background:var(--bg);color:var(--muted);font-family:'DM Sans',sans-serif;font-size:12px;cursor:pointer;">⬆ Import<input type="file" accept=".json" onchange="importEvent(this)" style="display:none;"/></label>
     </div>
   </div>
@@ -248,6 +250,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <button class="evt-badge" onclick="openEvtModal()" id="evtBadge" title="Switch event">📁 <span id="evtBadgeName">Loading…</span></button>
     <button class="collapse-toggle" id="stickyToggleBtn" onclick="toggleStickyPanel()" title="Collapse/expand top panel">▲ Collapse</button>
     <button class="snap-btn" onclick="openSnapshotModal()">📸 Save Trip Segment</button>
+    <button class="snap-btn" onclick="exportToSheets()" style="border-color:#0F9D58;background:#E8F5E9;color:#0F9D58;">🟢 Sheets</button>
     <button class="snap-btn" onclick="resetAll()" style="background:var(--dl);color:var(--danger);border-color:var(--danger);">🔄 Reset</button>
   </div>
 </div>
@@ -1402,6 +1405,109 @@ function exportEvent(){
   const a = document.createElement('a');
   a.href=url; a.download=(evt?evt.label.replace(/[^a-z0-9]/gi,'_'):'event')+'_expense.json';
   a.click(); URL.revokeObjectURL(url);
+}
+
+// ── GOOGLE SHEETS EXPORT ─────────────────────────────
+function buildExportRows(){
+  // Collect all transactions across all persons, flatten
+  const rows = [];
+  const allActivities = [];
+  // gather unique activities (they're stored per person but are shared)
+  // build a map: actId -> activity + owner person
+  const actMap = {};
+  persons.forEach(p => {
+    p.actions.forEach(a => {
+      if(!actMap[a.id]) actMap[a.id] = {act: a, owner: p};
+    });
+  });
+  // For each activity, compute per-person split
+  const tw = persons.reduce((s,p)=>s+personWeight(p),0);
+  Object.values(actMap).forEach(({act: a, owner}) => {
+    const atype = (a.type==='special'||a.type==='weighted') ? 'weighted' : 'even';
+    const amount = parseFloat(a.amount)||0;
+    const currency = a.currency||'JPY';
+    // build weight map defaults
+    const wmap = {};
+    persons.forEach(p => {
+      wmap[p.id] = a.weights&&a.weights[p.id]!==undefined ? a.weights[p.id] : (atype==='weighted'?2:1);
+    });
+    // compute splits
+    let totalW = 0;
+    persons.forEach(p => { totalW += wmap[p.id]; });
+    const splits = {};
+    persons.forEach(p => {
+      splits[p.id] = totalW>0 ? (wmap[p.id]/totalW)*amount : 0;
+    });
+    const row = {
+      Date: a.date||'',
+      Transaction: a.name||'',
+      Type: atype,
+      Currency: currency,
+      Amount: amount,
+      'Paid By': a.paidBy||'',
+    };
+    persons.forEach(p => {
+      row[p.name+' Weight'] = wmap[p.id];
+      row[p.name+' Share'] = +splits[p.id].toFixed(2);
+    });
+    rows.push(row);
+  });
+  // sort by date
+  rows.sort((a,b)=>(a.Date>b.Date?1:a.Date<b.Date?-1:0));
+  return rows;
+}
+
+function exportCSV(){
+  const rows = buildExportRows();
+  if(!rows.length){ alert('No transactions to export.'); return; }
+  const headers = Object.keys(rows[0]);
+  const escape = v => {
+    const s = String(v==null?'':v);
+    return s.includes(',')||s.includes('"')||s.includes('\n') ? '"'+s.replace(/"/g,'""')+'"' : s;
+  };
+  const csv = [headers.map(escape).join(','), ...rows.map(r=>headers.map(h=>escape(r[h])).join(','))].join('\r\n');
+  const idx = getEventIndex();
+  const evt = idx.find(e=>e.id===currentEventId);
+  const name = (evt?evt.label.replace(/[^a-z0-9]/gi,'_'):'expenses');
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href=url; a.download=name+'_expenses.csv'; a.click();
+  URL.revokeObjectURL(url);
+}
+
+function exportToSheets(){
+  const rows = buildExportRows();
+  if(!rows.length){ alert('No transactions to export.'); return; }
+  const headers = Object.keys(rows[0]);
+  const escape = v => {
+    const s = String(v==null?'':v);
+    return s.includes(',')||s.includes('"')||s.includes('\n') ? '"'+s.replace(/"/g,'""')+'"' : s;
+  };
+  const csv = [headers.map(escape).join(','), ...rows.map(r=>headers.map(h=>escape(r[h])).join(','))].join('\n');
+  // Encode as data URI and open via Sheets import URL
+  const encoded = encodeURIComponent(csv);
+  const dataURI = 'data:text/csv;charset=utf-8,'+encoded;
+  // Google Sheets can open a CSV via the importdata workaround; best UX is to
+  // open a new sheet and note the data — we use the direct drive upload approach:
+  // Since we can't POST directly to Sheets without OAuth, we fall back to
+  // downloading CSV and opening sheets.new so user can paste/import easily.
+  exportCSV();
+  setTimeout(()=>{ window.open('https://sheets.new','_blank'); }, 300);
+  // Show a toast
+  showToast('CSV downloaded — paste or import it in the new Google Sheet that just opened.');
+}
+
+function showToast(msg){
+  let t = document.getElementById('exportToast');
+  if(!t){
+    t = document.createElement('div');
+    t.id='exportToast';
+    t.style.cssText='position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:#1C1C1A;color:#fff;padding:10px 18px;border-radius:20px;font-size:12px;font-family:DM Sans,sans-serif;z-index:9999;opacity:0;transition:opacity .3s;white-space:nowrap;box-shadow:0 4px 16px rgba(0,0,0,.3);';
+    document.body.appendChild(t);
+  }
+  t.textContent=msg; t.style.opacity='1';
+  setTimeout(()=>{ t.style.opacity='0'; }, 3500);
 }
 
 function importEvent(input){
